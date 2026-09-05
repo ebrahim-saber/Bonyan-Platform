@@ -166,6 +166,16 @@
                                         <span class="text-secondary">@m.ContractorSubmissionNotes</span>
                                     </div>
                                 }
+                                @if (!string.IsNullOrEmpty(m.ContractorProofAttachmentUrl))
+                                {
+                                    <div class="mb-2">
+                                        <a href="@m.ContractorProofAttachmentUrl" target="_blank" class="btn btn-outline-custom btn-sm py-1 px-3 d-inline-flex align-items-center gap-2">
+                                            <i class="bi bi-file-earmark-check-fill text-success"></i>
+                                            <span>معاينة وثيقة إثبات الإنجاز الميداني المرفقة</span>
+                                            <i class="bi bi-box-arrow-up-right small text-muted"></i>
+                                        </a>
+                                    </div>
+                                }
                                 @if (!string.IsNullOrEmpty(m.ClientApprovalNotes))
                                 {
                                     <div class="bg-white p-3 rounded-3 small border">
@@ -197,7 +207,7 @@
                                         <div class="modal fade text-start" id="submitMilestoneModal_@m.Id" tabindex="-1">
                                             <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content border-0 shadow-lg">
-                                                    <form asp-action="SubmitMilestone" method="post">
+                                                    <form asp-action="SubmitMilestone" method="post" enctype="multipart/form-data">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="MilestoneId" value="@m.Id" />
                                                         <input type="hidden" name="contractId" value="@Model.Id" />
@@ -209,6 +219,11 @@
                                                             <div class="mb-3">
                                                                 <label class="form-label small fw-bold">تقرير تفاصيل الإنجاز الميداني</label>
                                                                 <textarea name="Notes" rows="4" class="form-control" placeholder="وضح للعميل ما تم إنجازه بدقة، نتائج الفحوصات أو الاختبارات الموقعية، أو شهادات المواد المستخدمة..." required></textarea>
+                                                            </div>
+                                                            <div class="mb-2">
+                                                                <label class="form-label small fw-bold">إرفاق تقرير الفحص الميداني أو صور الأعمال (اختياري)</label>
+                                                                <input type="file" name="proofFile" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.webp" />
+                                                                <small class="text-muted d-block mt-1">يُفضل إرفاق صور واضحة أو تقرير فحص هندسي لتسريع مصادقة العميل</small>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer bg-light">

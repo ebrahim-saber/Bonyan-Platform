@@ -68,6 +68,45 @@
                     </div>
                 }
 
+                <!-- Engineering Blueprints & Site Photos Attachments -->
+                @if (Model.Attachments != null && Model.Attachments.Any())
+                {
+                    <div class="mb-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                                <i class="bi bi-folder-symlink-fill text-primary"></i>
+                                <span>المخططات الهندسية ومرفقات المشروع (@Model.Attachments.Count)</span>
+                            </h5>
+                            <span class="badge bg-light text-secondary border small">وثائق معتمدة من العميل</span>
+                        </div>
+
+                        <div class="row g-3">
+                            @foreach (var att in Model.Attachments)
+                            {
+                                <div class="col-md-6">
+                                    <div class="card p-3 rounded-3 border h-100 bg-light d-flex flex-row align-items-center justify-content-between gap-2">
+                                        <div class="d-flex align-items-center gap-3 overflow-hidden">
+                                            <div class="rounded p-2 @(att.IsPdf ? "bg-danger bg-opacity-10 text-danger" : att.IsDwg ? "bg-primary bg-opacity-10 text-primary" : "bg-success bg-opacity-10 text-success") fs-3 flex-shrink-0">
+                                                <i class="bi @(att.IsPdf ? "bi-file-earmark-pdf-fill" : att.IsDwg ? "bi-file-earmark-ruled-fill" : "bi-file-earmark-image-fill")"></i>
+                                            </div>
+                                            <div class="overflow-hidden">
+                                                <h6 class="fw-bold mb-0 text-dark text-truncate" title="@att.FileName">@att.FileName</h6>
+                                                <small class="text-muted">@att.FormattedSize</small>
+                                            </div>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <a href="@att.FilePath" target="_blank" class="btn btn-outline-custom btn-sm py-1 px-3 d-inline-flex align-items-center gap-1">
+                                                <i class="bi bi-eye"></i>
+                                                <span>معاينة</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
                 <!-- Contractor Action Box -->
                 @if (User.IsInRole(nameof(UserType.Contractor)) && Model.Status == ProjectStatus.OpenForBids)
                 {

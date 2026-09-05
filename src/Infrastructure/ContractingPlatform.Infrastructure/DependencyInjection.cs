@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<IContractService, ContractService>();
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
         return services;
     }

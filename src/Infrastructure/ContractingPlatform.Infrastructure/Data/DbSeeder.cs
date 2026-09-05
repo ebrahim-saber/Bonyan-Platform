@@ -271,5 +271,35 @@ public static class DbSeeder
                 }
             }
         }
+
+        // 6. Seed sample engineering attachments for the demo project if none exist
+        var demoProj = await context.ProjectRequests.Include(p => p.Attachments).FirstOrDefaultAsync();
+        if (demoProj != null && !demoProj.Attachments.Any())
+        {
+            demoProj.Attachments.Add(new ProjectAttachment
+            {
+                FileName = "مخطط_معماري_فيلا_الملقا_معتمد.pdf",
+                FilePath = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                ContentType = "application/pdf",
+                FileSizeBytes = 2450000
+            });
+            demoProj.Attachments.Add(new ProjectAttachment
+            {
+                FileName = "المسقط_الأفقي_والواجهات_التنفيذية.dwg",
+                FilePath = "/uploads/projects/sample_facade_blueprint.dwg",
+                ContentType = "application/acad",
+                FileSizeBytes = 5820000
+            });
+            demoProj.Attachments.Add(new ProjectAttachment
+            {
+                FileName = "صورة_الموقع_الحالي_قبل_بدء_التشطيب.jpg",
+                FilePath = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+                ContentType = "image/jpeg",
+                FileSizeBytes = 1240000
+            });
+
+            await context.SaveChangesAsync();
+        }
     }
 }
+

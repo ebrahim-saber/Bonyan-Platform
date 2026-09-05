@@ -11,11 +11,16 @@ public class ContractsController : Controller
 {
     private readonly IContractService _contractService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IFileStorageService _fileStorageService;
 
-    public ContractsController(IContractService contractService, ICurrentUserService currentUserService)
+    public ContractsController(
+        IContractService contractService, 
+        ICurrentUserService currentUserService,
+        IFileStorageService fileStorageService)
     {
         _contractService = contractService;
         _currentUserService = currentUserService;
+        _fileStorageService = fileStorageService;
     }
 
     [HttpGet]
@@ -48,13 +53,40 @@ public class ContractsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = nameof(UserType.Contractor))]
-    public async Task<IActionResult> SubmitMilestone(SubmitMilestoneProofDto dto, int contractId)
+    public async Task<IActionResult> SubmitMilestone(SubmitMilestoneProofDto dto, int contractId, IFormFile? proofFile)
     {
         var contractorProfileId = await _currentUserService.GetContractorProfileIdAsync();
         if (!contractorProfileId.HasValue)
         {
             TempData["ErrorMessage"] = "تعذر تحديد حساب المقاول";
             return RedirectToAction("Login", "Account");
+        }
+
+        if (proofFile != null && proofFile.Length > 0)
+        {
+            if (!_fileStorageService.IsAllowedExtension(proofFile.FileName))
+            {
+                TempData["ErrorMessage"] = $"نوع ملف الإثبات '{proofFile.FileName}' غير مسموح به. يرجى رفع ملف بصيغة PDF أو صورة معتمدة.";
+                return RedirectToAction(nameof(Details), new { id = contractId });
+            }
+
+            if (!_fileStorageService.IsAllowedFileSize(proofFile.Length))
+            {
+                TempData["ErrorMessage"] = "حجم ملف الإثبات يتجاوز 20 ميجابايت.";
+                return RedirectToAction(nameof(Details), new { id = contractId });
+            }
+
+            try
+            {
+                using var stream = proofFile.OpenReadStream();
+                var upload = await _fileStorageService.SaveFileAsync(stream, proofFile.FileName, proofFile.ContentType, "milestones");
+                dto.AttachmentUrl = upload.FilePath;
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"فشل رفع وثيقة إثبات الإنجاز: {ex.Message}";
+                return RedirectToAction(nameof(Details), new { id = contractId });
+            }
         }
 
         var result = await _contractService.SubmitMilestoneProofAsync(dto, contractorProfileId.Value);

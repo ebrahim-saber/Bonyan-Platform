@@ -42,6 +42,20 @@ public class ProjectService : IProjectService
             Status = ProjectStatus.OpenForBids
         };
 
+        if (dto.Attachments != null && dto.Attachments.Any())
+        {
+            foreach (var att in dto.Attachments)
+            {
+                project.Attachments.Add(new ProjectAttachment
+                {
+                    FileName = att.FileName,
+                    FilePath = att.FilePath,
+                    ContentType = att.ContentType,
+                    FileSizeBytes = att.FileSizeBytes
+                });
+            }
+        }
+
         await _context.ProjectRequests.AddAsync(project);
         await _context.SaveChangesAsync();
 
@@ -142,8 +156,16 @@ public class ProjectService : IProjectService
             BidsCount = project.Bids.Count,
             CreatedAt = project.CreatedAt,
             ClientProfileId = project.ClientProfileId,
-            ClientName = project.Client.User.FullName,
+            ClientName = project.Client?.User?.FullName ?? "عميل منصة بُنيان",
             AttachmentUrls = project.Attachments.Select(a => a.FilePath).ToList(),
+            Attachments = project.Attachments.Select(a => new ProjectAttachmentDto
+            {
+                Id = a.Id,
+                FileName = a.FileName,
+                FilePath = a.FilePath,
+                ContentType = a.ContentType,
+                FileSizeBytes = a.FileSizeBytes
+            }).ToList(),
             HasUserBid = currentContractorProfileId.HasValue && project.Bids.Any(b => b.ContractorProfileId == currentContractorProfileId.Value),
             Bids = bidsList
         };

@@ -15,6 +15,26 @@ public class CreateProjectDto
     public decimal? ExpectedBudgetMin { get; set; }
     public decimal? ExpectedBudgetMax { get; set; }
     public DateTime? DesiredExecutionDate { get; set; }
+    public List<ContractingPlatform.Application.Interfaces.UploadedFileResult> Attachments { get; set; } = new();
+}
+
+public class ProjectAttachmentDto
+{
+    public int Id { get; set; }
+    public string FileName { get; set; } = string.Empty;
+    public string FilePath { get; set; } = string.Empty;
+    public string ContentType { get; set; } = string.Empty;
+    public long FileSizeBytes { get; set; }
+    public string FormattedSize => FileSizeBytes > 1024 * 1024 
+        ? $"{(FileSizeBytes / (1024.0 * 1024.0)):F1} MB" 
+        : $"{(FileSizeBytes / 1024.0):F0} KB";
+    public bool IsImage => ContentType.StartsWith("image/") || 
+                           FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                           FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) || 
+                           FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                           FileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
+    public bool IsPdf => ContentType.Contains("pdf") || FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
+    public bool IsDwg => FileName.EndsWith(".dwg", StringComparison.OrdinalIgnoreCase);
 }
 
 public class ProjectCardDto
@@ -40,6 +60,7 @@ public class ProjectDetailsDto : ProjectCardDto
     public string? DetailedAddress { get; set; }
     public DateTime? DesiredExecutionDate { get; set; }
     public List<string> AttachmentUrls { get; set; } = new();
+    public List<ProjectAttachmentDto> Attachments { get; set; } = new();
     public List<BidListItemDto> Bids { get; set; } = new();
     public bool HasUserBid { get; set; }
 }

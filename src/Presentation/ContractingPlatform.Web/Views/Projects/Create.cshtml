@@ -7,84 +7,176 @@
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card card-custom p-4 p-md-5 border">
+        <div class="col-lg-9">
+            <div class="card card-custom p-4 p-md-5">
                 <div class="text-center mb-4">
-                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center p-3 mb-2">
-                        <i class="bi bi-pencil-square fs-1"></i>
+                    <div class="category-icon-box mx-auto mb-3" style="background: rgba(11, 19, 43, 0.06); color: var(--brand-navy); width: 64px; height: 64px; font-size: 1.8rem;">
+                        <i class="bi bi-pencil-square"></i>
                     </div>
-                    <h3 class="fw-bold">طرح مشروع جديد واستقبال عروض الأسعار</h3>
-                    <p class="text-muted small">اشرح احتياجك بالتفصيل ليصل طلبك إلى أفضل المقاولين والمنشآت المتخصصة في منطقتك</p>
+                    <span class="badge-soft-primary mb-2 d-inline-block">خطوتك الأولى نحو تنفيذ آمن</span>
+                    <h2 class="fw-extrabold text-dark mb-2">طرح مشروع جديد واستقبال عروض الأسعار</h2>
+                    <p class="text-muted small mx-auto" style="max-width: 600px;">اشرح احتياجك بدقة وأرفق المخططات الهندسية ليصل طلبك إلى أفضل المقاولين والمنشآت المعتمدة في منطقتك وتخصصك.</p>
                 </div>
 
-                <form asp-action="Create" method="post">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label fw-bold small">عنوان المشروع</label>
-                        <input asp-for="Title" class="form-control" placeholder="مثال: تشطيب فيلا دورين وملحق بالكامل مع المواد" required />
-                        <span asp-validation-for="Title" class="text-danger small"></span>
-                    </div>
+                    <div class="card p-4 rounded-3 border mb-4 bg-light bg-opacity-50">
+                        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill text-primary"></i>
+                            <span>البيانات الأساسية للمشروع</span>
+                        </h5>
 
-                    <div class="mb-3">
-                        <label asp-for="CategoryId" class="form-label fw-bold small">تصنيف مجال المقاولات أو الصيانة</label>
-                        <select asp-for="CategoryId" class="form-select" required>
-                            <option value="">-- اختر التصنيف المناسب --</option>
-                            @foreach (var c in categories)
-                            {
-                                <option value="@c.Id">@c.NameAr</option>
-                            }
-                        </select>
-                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label fw-bold small">وصف متطلبات المشروع ومواصفات التنفيذ</label>
-                        <textarea asp-for="Description" rows="5" class="form-control" placeholder="اكتب تفاصيل الأعمال بدقة: المساحة بالمتر المربع، نوعية التشطيبات (ديلوكس، سوبر ديلوكس)، هل المواد مشمولة، وأي شروط خاصة ترغب بها..." required></textarea>
-                        <span asp-validation-for="Description" class="text-danger small"></span>
-                    </div>
-
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label asp-for="City" class="form-label fw-bold small">المدينة</label>
-                            <input asp-for="City" class="form-control" placeholder="الرياض" required />
-                            <span asp-validation-for="City" class="text-danger small"></span>
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold small text-secondary">عنوان المشروع</label>
+                            <input asp-for="Title" class="form-control py-2 shadow-none" placeholder="مثال: تشطيب فيلا دورين وملحق بالكامل مع المواد وفق الكود السعودي" required />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
-                            <label asp-for="District" class="form-label fw-bold small">الحي السكني</label>
-                            <input asp-for="District" class="form-control" placeholder="حي الملقا" required />
-                            <span asp-validation-for="District" class="text-danger small"></span>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label fw-bold small text-secondary">مجال المقاولات أو الصيانة الرئيسي</label>
+                            <select asp-for="CategoryId" class="form-select py-2 shadow-none" required>
+                                <option value="">-- اختر قطاع المقاولات المناسب --</option>
+                                @foreach (var c in categories)
+                                {
+                                    <option value="@c.Id">@c.NameAr</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-0">
+                            <label asp-for="Description" class="form-label fw-bold small text-secondary">نطاق العمل ومواصفات التنفيذ التفصيلية</label>
+                            <textarea asp-for="Description" rows="5" class="form-control shadow-none" placeholder="اكتب تفاصيل الأعمال بدقة: المساحة بالمتر المربع، نوعية التشطيبات (ديلوكس، سوبر ديلوكس)، هل المواد مشمولة، وأي شروط خاصة ترغب بها..." required></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="DetailedAddress" class="form-label fw-bold small">تفاصيل العنوان أو اسم المخطط (اختياري)</label>
-                        <input asp-for="DetailedAddress" class="form-control" placeholder="شارع الأمير تركي بن عبدالعزيز الأول، فيلا رقم..." />
-                    </div>
-
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label asp-for="ExpectedBudgetMin" class="form-label fw-bold small">الحد الأدنى للميزانية المتوقعة (ر.س)</label>
-                            <input asp-for="ExpectedBudgetMin" type="number" step="100" class="form-control" placeholder="مثال: 50000" />
+                    <!-- Engineering Blueprints & Site Photos Upload Section -->
+                    <div class="card p-4 rounded-3 border mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                                <span>المخططات الهندسية ورخصة البناء وصور الموقع (اختياري)</span>
+                            </h5>
+                            <span class="badge bg-warning text-dark small fw-bold">يُنصح به لعروض دقيقة</span>
                         </div>
-                        <div class="col-md-6">
-                            <label asp-for="ExpectedBudgetMax" class="form-label fw-bold small">الحد الأقصى للميزانية المتوقعة (ر.س)</label>
-                            <input asp-for="ExpectedBudgetMax" type="number" step="100" class="form-control" placeholder="مثال: 80000" />
-                            <span asp-validation-for="ExpectedBudgetMax" class="text-danger small"></span>
+                        <p class="text-muted small mb-3">
+                            إرفاق المخططات المعمارية والإنشائية ورخصة البناء أو صور واقعية للمبنى يساعد المقاولين على احتساب تكلفة المواد والمصنعية بدقة متناهية.
+                        </p>
+
+                        <div class="border border-2 border-dashed rounded-3 p-4 text-center bg-white" style="border-color: #cbd5e1 !important;">
+                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center p-3 mb-2 text-primary fs-3">
+                                <i class="bi bi-cloud-arrow-up-fill"></i>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">اسحب وأفلت المخططات والصور هنا، أو اضغط للاختيار</h6>
+                            <p class="text-muted small mb-3">الصيغ المعتمدة: PDF, DWG, DXF, JPG, PNG, WEBP (الحد الأقصى 20 ميجابايت للملف)</p>
+                            
+                            <input type="file" name="attachments" id="attachmentsInput" multiple class="form-control d-none" accept=".pdf,.dwg,.dxf,.png,.jpg,.jpeg,.webp,.doc,.docx" onchange="displaySelectedFiles(this)">
+                            <button type="button" class="btn btn-outline-custom px-4 py-2 fw-bold" onclick="document.getElementById('attachmentsInput').click()">
+                                <i class="bi bi-folder2-open me-1"></i> تصفح واختيار الملفات
+                            </button>
+                        </div>
+
+                        <!-- Selected Files Preview List -->
+                        <div id="selectedFilesContainer" class="mt-3 d-none">
+                            <span class="small fw-bold text-dark d-block mb-2">الملفات المحددة للرفع:</span>
+                            <div id="selectedFilesList" class="d-flex flex-column gap-2"></div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label asp-for="DesiredExecutionDate" class="form-label fw-bold small">التاريخ المفضل لبدء الأعمال</label>
-                        <input asp-for="DesiredExecutionDate" type="date" class="form-control" />
+                    <!-- Geographic Location Section -->
+                    <div class="card p-4 rounded-3 border mb-4 bg-light bg-opacity-50">
+                        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-geo-alt-fill text-danger"></i>
+                            <span>الموقع الجغرافي للعقار</span>
+                        </h5>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="City" class="form-label fw-bold small text-secondary">المدينة</label>
+                                <input asp-for="City" class="form-control py-2 shadow-none" placeholder="الرياض" required />
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="District" class="form-label fw-bold small text-secondary">الحي السكني</label>
+                                <input asp-for="District" class="form-control py-2 shadow-none" placeholder="حي الملقا" required />
+                                <span asp-validation-for="District" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label asp-for="DetailedAddress" class="form-label fw-bold small text-secondary">تفاصيل العنوان أو اسم المخطط ورقم القطعة (اختياري)</label>
+                            <input asp-for="DetailedAddress" class="form-control py-2 shadow-none" placeholder="شارع الأمير تركي الأول، مخطط 2445، قطعة رقم..." />
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold fs-5">
-                        <i class="bi bi-send me-1"></i> نشر المشروع وبدء استقبال العروض
+                    <!-- Budget & Desired Dates Section -->
+                    <div class="card p-4 rounded-3 border mb-4 bg-light bg-opacity-50">
+                        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-wallet2 text-success"></i>
+                            <span>الميزانية التقديرية والجدول الزمني</span>
+                        </h5>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ExpectedBudgetMin" class="form-label fw-bold small text-secondary">الحد الأدنى للميزانية المتوقعة (ر.س)</label>
+                                <input asp-for="ExpectedBudgetMin" type="number" step="100" class="form-control py-2 shadow-none" placeholder="مثال: 50000" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ExpectedBudgetMax" class="form-label fw-bold small text-secondary">الحد الأقصى للميزانية المتوقعة (ر.س)</label>
+                                <input asp-for="ExpectedBudgetMax" type="number" step="100" class="form-control py-2 shadow-none" placeholder="مثال: 80000" />
+                                <span asp-validation-for="ExpectedBudgetMax" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label asp-for="DesiredExecutionDate" class="form-label fw-bold small text-secondary">التاريخ المفضل لبدء الأعمال الميدانية</label>
+                            <input asp-for="DesiredExecutionDate" type="date" class="form-control py-2 shadow-none" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold fs-5 shadow-md">
+                        <i class="bi bi-send-fill me-1"></i> نشر المشروع وبدء استقبال عروض الأسعار
                     </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function displaySelectedFiles(input) {
+            const container = document.getElementById('selectedFilesContainer');
+            const list = document.getElementById('selectedFilesList');
+            list.innerHTML = '';
+
+            if (input.files && input.files.length > 0) {
+                container.classList.remove('d-none');
+                Array.from(input.files).forEach((file, index) => {
+                    const sizeInMb = (file.size / (1024 * 1024)).toFixed(2);
+                    const isPdf = file.name.endsWith('.pdf');
+                    const isDwg = file.name.endsWith('.dwg') || file.name.endsWith('.dxf');
+                    const iconClass = isPdf ? 'bi-file-earmark-pdf-fill text-danger' : 
+                                      isDwg ? 'bi-file-earmark-ruled-fill text-primary' : 
+                                      'bi-file-earmark-image-fill text-success';
+
+                    const item = document.createElement('div');
+                    item.className = 'd-flex align-items-center justify-content-between p-2 bg-white rounded border small';
+                    item.innerHTML = `
+                        <div class="d-flex align-items-center gap-2 text-truncate">
+                            <i class="bi ${iconClass} fs-5"></i>
+                            <span class="fw-bold text-dark text-truncate">${file.name}</span>
+                        </div>
+                        <span class="badge bg-light text-secondary border">${sizeInMb} MB</span>
+                    `;
+                    list.appendChild(item);
+                });
+            } else {
+                container.classList.add('d-none');
+            }
+        }
+    </script>
+}

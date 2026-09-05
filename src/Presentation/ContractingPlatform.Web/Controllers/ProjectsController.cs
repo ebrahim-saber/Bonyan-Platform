@@ -10,11 +10,16 @@ public class ProjectsController : Controller
 {
     private readonly IProjectService _projectService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IFileStorageService _fileStorageService;
 
-    public ProjectsController(IProjectService projectService, ICurrentUserService currentUserService)
+    public ProjectsController(
+        IProjectService projectService, 
+        ICurrentUserService currentUserService,
+        IFileStorageService fileStorageService)
     {
         _projectService = projectService;
         _currentUserService = currentUserService;
+        _fileStorageService = fileStorageService;
     }
 
     [HttpGet]
@@ -57,7 +62,7 @@ public class ProjectsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = nameof(UserType.Client))]
-    public async Task<IActionResult> Create(CreateProjectDto dto)
+    public async Task<IActionResult> Create(CreateProjectDto dto, List<IFormFile>? attachments)
     {
         ViewBag.Categories = await _projectService.GetActiveCategoriesAsync();
         if (!ModelState.IsValid) return View(dto);
@@ -67,6 +72,44 @@ public class ProjectsController : Controller
         {
             TempData["ErrorMessage"] = "تعذر تحديد حساب العميل، يرجى إعادة تسجيل الدخول";
             return RedirectToAction("Login", "Account");
+        }
+
+        // Process engineering blueprints & site photos
+        if (attachments != null && attachments.Count > 0)
+        {
+            foreach (var file in attachments)
+            {
+                if (file.Length == 0) continue;
+
+                if (!_fileStorageService.IsAllowedExtension(file.FileName))
+                {
+                    ModelState.AddModelError("", $"نوع الملف '{file.FileName}' غير مسموح به. الامتدادات المدعومة: PDF, DWG, DXF, JPG, PNG, WEBP");
+                    return View(dto);
+                }
+
+                if (!_fileStorageService.IsAllowedFileSize(file.Length))
+                {
+                    ModelState.AddModelError("", $"حجم الملف '{file.FileName}' كبير جداً. الحد الأقصى هو 20 ميجابايت");
+                    return View(dto);
+                }
+
+                try
+                {
+                    using var stream = file.OpenReadStream();
+                    var savedResult = await _fileStorageService.SaveFileAsync(
+                        stream, 
+                        file.FileName, 
+                        file.ContentType, 
+                        "projects");
+
+                    dto.Attachments.Add(savedResult);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"فشل رفع الملف '{file.FileName}': {ex.Message}");
+                    return View(dto);
+                }
+            }
         }
 
         var result = await _projectService.CreateProjectAsync(dto, clientProfileId.Value);

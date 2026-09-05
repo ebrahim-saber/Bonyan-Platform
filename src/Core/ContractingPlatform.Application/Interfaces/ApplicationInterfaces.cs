@@ -60,3 +60,20 @@ public interface ISecurityAuditService
 {
     Task LogSecurityEventAsync(string eventType, string description, string? userId = null, string? ipAddress = null, bool isSuspicious = false);
 }
+
+public class UploadedFileResult
+{
+    public string FileName { get; set; } = string.Empty;
+    public string FilePath { get; set; } = string.Empty;
+    public string ContentType { get; set; } = string.Empty;
+    public long FileSizeBytes { get; set; }
+}
+
+public interface IFileStorageService
+{
+    Task<UploadedFileResult> SaveFileAsync(Stream fileStream, string originalFileName, string contentType, string subFolder, CancellationToken cancellationToken = default);
+    Task<bool> DeleteFileAsync(string relativeFilePath);
+    bool IsAllowedExtension(string fileName);
+    bool IsAllowedFileSize(long sizeInBytes);
+}
+
