@@ -36,7 +36,7 @@ public interface IProjectService
 public interface IBidService
 {
     Task<ApiResponse<int>> SubmitBidAsync(CreateBidDto dto, int contractorProfileId);
-    Task<ApiResponse<bool>> AcceptBidAsync(AcceptBidDto dto, int clientProfileId);
+    Task<ApiResponse<int>> AcceptBidAsync(AcceptBidDto dto, int clientProfileId);
     Task<List<BidListItemDto>> GetContractorBidsAsync(int contractorProfileId);
 }
 

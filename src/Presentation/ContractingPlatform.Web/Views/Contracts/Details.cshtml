@@ -213,68 +213,106 @@
 
                                 <div class="mt-2">
                                     <!-- Contractor Action Button -->
-                                    @if (User.IsInRole("Contractor") && m.Status == MilestoneStatus.InProgress)
+                                    @if (User.IsInRole("Contractor"))
                                     {
-                                        <button type="button" class="btn btn-warning btn-sm fw-bold px-3 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#submitMilestoneModal_@m.Id">
-                                            <i class="bi bi-upload me-1"></i> تسليم إنجاز المرحلة للعميل
-                                        </button>
+                                        @if (m.Status == MilestoneStatus.InProgress)
+                                        {
+                                            @if (m.PaymentStatus == ContractingPlatform.Domain.Enums.PaymentStatus.HeldInEscrow)
+                                            {
+                                                <button type="button" class="btn btn-warning btn-sm fw-bold px-3 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#submitMilestoneModal_@m.Id">
+                                                    <i class="bi bi-upload me-1"></i> تسليم إنجاز المرحلة للعميل
+                                                </button>
 
-                                        <!-- Submit Modal -->
-                                        <div class="modal fade text-start" id="submitMilestoneModal_@m.Id" tabindex="-1">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content border-0 shadow-lg">
-                                                    <form asp-action="SubmitMilestone" method="post" enctype="multipart/form-data">
-                                                        @Html.AntiForgeryToken()
-                                                        <input type="hidden" name="MilestoneId" value="@m.Id" />
-                                                        <input type="hidden" name="contractId" value="@Model.Id" />
-                                                        <div class="modal-header bg-light">
-                                                            <h5 class="modal-title fw-bold">تسليم إنجاز: @m.Title</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                <!-- Submit Modal -->
+                                                <div class="modal fade text-start" id="submitMilestoneModal_@m.Id" tabindex="-1">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content border-0 shadow-lg">
+                                                            <form asp-action="SubmitMilestone" method="post" enctype="multipart/form-data">
+                                                                @Html.AntiForgeryToken()
+                                                                <input type="hidden" name="MilestoneId" value="@m.Id" />
+                                                                <input type="hidden" name="contractId" value="@Model.Id" />
+                                                                <div class="modal-header bg-light">
+                                                                    <h5 class="modal-title fw-bold">تسليم إنجاز: @m.Title</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body p-4">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label small fw-bold">تقرير تفاصيل الإنجاز الميداني</label>
+                                                                        <textarea name="Notes" rows="4" class="form-control" placeholder="وضح للعميل ما تم إنجازه بدقة، نتائج الفحوصات أو الاختبارات الموقعية، أو شهادات المواد المستخدمة..." required></textarea>
+                                                                    </div>
+                                                                    <div class="mb-2">
+                                                                        <label class="form-label small fw-bold">إرفاق تقرير الفحص الميداني أو صور الأعمال (اختياري)</label>
+                                                                        <input type="file" name="proofFile" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.webp" />
+                                                                        <small class="text-muted d-block mt-1">يُفضل إرفاق صور واضحة أو تقرير فحص هندسي لتسريع مصادقة العميل</small>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer bg-light">
+                                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                                                    <button type="submit" class="btn btn-primary-custom">
+                                                                        <i class="bi bi-send me-1"></i> إرسال للعميل للاعتماد
+                                                                    </button>
+                                                                </div>
+                                                            </form>
                                                         </div>
-                                                        <div class="modal-body p-4">
-                                                            <div class="mb-3">
-                                                                <label class="form-label small fw-bold">تقرير تفاصيل الإنجاز الميداني</label>
-                                                                <textarea name="Notes" rows="4" class="form-control" placeholder="وضح للعميل ما تم إنجازه بدقة، نتائج الفحوصات أو الاختبارات الموقعية، أو شهادات المواد المستخدمة..." required></textarea>
-                                                            </div>
-                                                            <div class="mb-2">
-                                                                <label class="form-label small fw-bold">إرفاق تقرير الفحص الميداني أو صور الأعمال (اختياري)</label>
-                                                                <input type="file" name="proofFile" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.webp" />
-                                                                <small class="text-muted d-block mt-1">يُفضل إرفاق صور واضحة أو تقرير فحص هندسي لتسريع مصادقة العميل</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer bg-light">
-                                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
-                                                            <button type="submit" class="btn btn-primary-custom">
-                                                                <i class="bi bi-send me-1"></i> إرسال للعميل للاعتماد
-                                                            </button>
-                                                        </div>
-                                                    </form>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-3 py-2 small fw-bold">
+                                                    <i class="bi bi-hourglass-split me-1"></i> بانتظار إيداع العميل للدفعة في الضمان
+                                                </span>
+                                            }
+                                        }
+                                        else if (m.Status == MilestoneStatus.SubmittedForReview)
+                                        {
+                                            <span class="badge bg-info bg-opacity-10 text-primary border border-primary px-3 py-2 small fw-bold">
+                                                <i class="bi bi-eye-fill me-1"></i> تم التسليم، بانتظار فحص العميل
+                                            </span>
+                                        }
+                                        else if (m.Status == MilestoneStatus.Paid)
+                                        {
+                                            <span class="badge-soft-success px-3 py-2 small fw-bold">
+                                                <i class="bi bi-check-circle-fill me-1"></i> تم اعتماد المرحلة وصرف الاستحقاق
+                                            </span>
+                                        }
                                     }
 
                                     <!-- Client Action Button -->
-                                    @if (User.IsInRole("Client") && m.Status == MilestoneStatus.Pending)
+                                    @if (User.IsInRole("Client"))
                                     {
-                                        <a href="@Url.Action("Checkout", "Payments", new { contractId = Model.Id, milestoneId = m.Id })" class="btn btn-primary-custom btn-sm fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-1">
-                                            <i class="bi bi-shield-lock-fill"></i>
-                                            <span>إيداع الدفعة في الضمان (تأمين المبلغ)</span>
-                                        </a>
-                                    }
-
-                                    @if (User.IsInRole("Client") && m.Status == MilestoneStatus.SubmittedForReview)
-                                    {
-                                        <form asp-action="ApproveMilestone" method="post" onsubmit="return confirm('بالضغط على اعتماد، سيتم الإفراج فوراً عن مبلغ هذه الدفعة من حساب الضمان المشترك وتحويلها لحساب المقاول. هل تؤكد استلام الأعمال ومطابقتها للشروط؟');">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="milestoneId" value="@m.Id" />
-                                            <input type="hidden" name="contractId" value="@Model.Id" />
-                                            <input type="hidden" name="notes" value="تمت المعاينة والاعتماد بنجاح ومطابقة المواصفات" />
-                                            <button type="submit" class="btn btn-success btn-sm fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-1">
-                                                <i class="bi bi-shield-check"></i>
-                                                <span>اعتماد واستلام المرحلة (صرف الدفعة)</span>
-                                            </button>
-                                        </form>
+                                        @if (m.Status != MilestoneStatus.Paid && m.Status != MilestoneStatus.SubmittedForReview && m.PaymentStatus != ContractingPlatform.Domain.Enums.PaymentStatus.HeldInEscrow)
+                                        {
+                                            <a href="@Url.Action("Checkout", "Payments", new { contractId = Model.Id, milestoneId = m.Id })" class="btn btn-primary-custom btn-sm fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-1">
+                                                <i class="bi bi-shield-lock-fill"></i>
+                                                <span>إيداع الدفعة في الضمان (تأمين المبلغ)</span>
+                                            </a>
+                                        }
+                                        else if (m.Status == MilestoneStatus.InProgress && m.PaymentStatus == ContractingPlatform.Domain.Enums.PaymentStatus.HeldInEscrow)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 small fw-bold">
+                                                <i class="bi bi-shield-lock-fill me-1"></i> الدفعة مؤمنة بالضمان - جاري العمل
+                                            </span>
+                                        }
+                                        else if (m.Status == MilestoneStatus.SubmittedForReview)
+                                        {
+                                            <form asp-action="ApproveMilestone" method="post" onsubmit="return confirm('بالضغط على اعتماد، سيتم الإفراج فوراً عن مبلغ هذه الدفعة من حساب الضمان المشترك وتحويلها لحساب المقاول. هل تؤكد استلام الأعمال ومطابقتها للشروط؟');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="milestoneId" value="@m.Id" />
+                                                <input type="hidden" name="contractId" value="@Model.Id" />
+                                                <input type="hidden" name="notes" value="تمت المعاينة والاعتماد بنجاح ومطابقة المواصفات" />
+                                                <button type="submit" class="btn btn-success btn-sm fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-1">
+                                                    <i class="bi bi-shield-check"></i>
+                                                    <span>اعتماد واستلام المرحلة (صرف الدفعة)</span>
+                                                </button>
+                                            </form>
+                                        }
+                                        else if (m.Status == MilestoneStatus.Paid)
+                                        {
+                                            <span class="badge-soft-success px-3 py-2 small fw-bold">
+                                                <i class="bi bi-check-all me-1"></i> تم الاستلام بنجاح وصرف الدفعة
+                                            </span>
+                                        }
                                     }
 
                                     @if (!string.IsNullOrEmpty(m.TransactionReference))

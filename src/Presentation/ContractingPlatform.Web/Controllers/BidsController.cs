@@ -80,6 +80,10 @@ public class BidsController : Controller
         if (result.Success)
         {
             TempData["SuccessMessage"] = result.Message;
+            if (result.Data > 0)
+            {
+                return RedirectToAction("Details", "Contracts", new { id = result.Data });
+            }
             return RedirectToAction("MyContracts", "Contracts");
         }
 

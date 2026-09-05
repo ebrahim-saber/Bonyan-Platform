@@ -136,6 +136,26 @@
                         </div>
                     </div>
                 }
+                else if (User.Identity?.IsAuthenticated != true && Model.Status == ProjectStatus.OpenForBids)
+                {
+                    <div class="p-4 rounded-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 border border-primary" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                                <i class="bi bi-briefcase-fill text-primary fs-4"></i>
+                                <span>هل أنت مقاول أو منشأة تنفيذية معتمدة؟</span>
+                            </h5>
+                            <p class="text-muted small mb-0">سجّل دخولك أو أنشئ حساب مقاول لتقديم عروض الأسعار والاطلاع على تفاصيل المناقصات الهندسية.</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "Projects", new { id = Model.Id })" class="btn btn-primary-custom px-4 py-2 fw-bold text-nowrap">
+                                تسجيل الدخول
+                            </a>
+                            <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-outline-custom px-3 py-2 fw-bold text-nowrap">
+                                انضم كمقاول
+                            </a>
+                        </div>
+                    </div>
+                }
             </div>
 
             <!-- Bids Section -->

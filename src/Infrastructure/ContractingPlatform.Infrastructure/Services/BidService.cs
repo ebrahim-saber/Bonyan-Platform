@@ -74,7 +74,7 @@ public class BidService : IBidService
         return ApiResponse<int>.Ok(bid.Id, "تم إرسال عرض السعر للعميل بنجاح");
     }
 
-    public async Task<ApiResponse<bool>> AcceptBidAsync(AcceptBidDto dto, int clientProfileId)
+    public async Task<ApiResponse<int>> AcceptBidAsync(AcceptBidDto dto, int clientProfileId)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -86,18 +86,18 @@ public class BidService : IBidService
 
             if (bid == null)
             {
-                return ApiResponse<bool>.Fail("عرض السعر المحدد غير موجود");
+                return ApiResponse<int>.Fail("عرض السعر المحدد غير موجود");
             }
 
             var project = bid.ProjectRequest;
             if (project.ClientProfileId != clientProfileId)
             {
-                return ApiResponse<bool>.Fail("غير مصرح لك بقبول عروض على هذا المشروع");
+                return ApiResponse<int>.Fail("غير مصرح لك بقبول عروض على هذا المشروع");
             }
 
             if (project.Status != ProjectStatus.OpenForBids)
             {
-                return ApiResponse<bool>.Fail("المشروع ليس في حالة استقبال العروض حالياً");
+                return ApiResponse<int>.Fail("المشروع ليس في حالة استقبال العروض حالياً");
             }
 
             // 1. Update Bids Status
@@ -170,7 +170,7 @@ public class BidService : IBidService
                     Description = "تجهيز الموقع والبدء في المرحلة التأسيسية",
                     Amount = m1,
                     OrderIndex = 1,
-                    Status = MilestoneStatus.InProgress
+                    Status = MilestoneStatus.Pending
                 });
 
                 contract.Milestones.Add(new ProjectMilestone
@@ -208,12 +208,12 @@ public class BidService : IBidService
                     $"/Contracts/Details/{contract.Id}");
             }
 
-            return ApiResponse<bool>.Ok(true, "تم قبول العرض وإنشاء العقد وجدولة الدفعات بنجاح");
+            return ApiResponse<int>.Ok(contract.Id, "تم قبول العرض وإنشاء العقد وجدولة الدفعات بنجاح");
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return ApiResponse<bool>.Fail($"حدث خطأ أثناء قبول العرض: {ex.Message}");
+            return ApiResponse<int>.Fail($"حدث خطأ أثناء قبول العرض: {ex.Message}");
         }
     }
 
