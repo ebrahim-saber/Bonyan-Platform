@@ -1,6 +1,7 @@
+@model ContractingPlatform.Application.DTOs.Admin.PlatformStatisticsDto
 @{
     ViewData["Title"] = "لوحة القيادة والإدارة العامة - منصة بُنيان";
-    dynamic stats = ViewBag.Stats;
+    var stats = Model;
 }
 
 <div class="container py-4">
@@ -14,6 +15,9 @@
             <p class="text-muted small mb-0">نظرة استراتيجية شاملة على حجم التدفقات المالية للضمان، التراخيص والسجلات، وسير المشاريع.</p>
         </div>
         <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a asp-action="Finances" class="btn btn-outline-success">
+                <i class="bi bi-bank2 me-1"></i> الرقابة المالية والضمان
+            </a>
             <a asp-action="Contractors" class="btn btn-outline-custom">
                 <i class="bi bi-shield-check text-warning me-1"></i> فحص التراخيص
             </a>
@@ -56,9 +60,14 @@
                         <i class="bi bi-cash-stack"></i>
                     </div>
                 </div>
-                <div class="pt-2 border-top small text-muted">
-                    <span>عمولات المنصة: </span>
-                    <strong class="text-dark">@(((decimal)stats.TotalPlatformCommission).ToString("N0")) ر.س</strong>
+                <div class="pt-2 border-top small d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted">عمولات المنصة: </span>
+                        <strong class="text-dark">@(((decimal)stats.TotalPlatformCommission).ToString("N0")) ر.س</strong>
+                    </div>
+                    <a asp-action="Finances" class="text-decoration-none small fw-bold text-success">
+                        التدقيق المالي <i class="bi bi-arrow-left"></i>
+                    </a>
                 </div>
             </div>
         </div>

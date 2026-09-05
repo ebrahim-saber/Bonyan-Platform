@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ContractingPlatform.Application.DTOs.Common;
+using ContractingPlatform.Application.DTOs.Admin;
 using ContractingPlatform.Application.Interfaces;
 using ContractingPlatform.Domain.Entities;
 using ContractingPlatform.Domain.Enums;
@@ -56,7 +57,7 @@ public class AdminService : IAdminService
         return ApiResponse<bool>.Ok(true, msg);
     }
 
-    public async Task<object> GetPlatformStatisticsAsync()
+    public async Task<PlatformStatisticsDto> GetPlatformStatisticsAsync()
     {
         var totalProjects = await _context.ProjectRequests.CountAsync(p => !p.IsDeleted);
         var activeProjects = await _context.ProjectRequests.CountAsync(p => p.Status == ProjectStatus.InProgress && !p.IsDeleted);
@@ -78,7 +79,7 @@ public class AdminService : IAdminService
             .Where(c => !c.IsDeleted)
             .SumAsync(c => (decimal?)c.PlatformCommissionAmount) ?? 0m;
 
-        return new
+        return new PlatformStatisticsDto
         {
             TotalProjects = totalProjects,
             ActiveProjects = activeProjects,
@@ -91,6 +92,70 @@ public class AdminService : IAdminService
             TotalBids = totalBids,
             TotalVolume = totalVolume,
             TotalPlatformCommission = totalPlatformCommission
+        };
+    }
+
+    public async Task<AdminFinancialDashboardDto> GetFinancialDashboardAsync()
+    {
+        var totalVolume = await _context.ProjectContracts
+            .Where(c => !c.IsDeleted)
+            .SumAsync(c => (decimal?)c.TotalAmount) ?? 0m;
+
+        var totalCommission = await _context.ProjectContracts
+            .Where(c => !c.IsDeleted)
+            .SumAsync(c => (decimal?)c.PlatformCommissionAmount) ?? 0m;
+
+        var totalHeldInEscrow = await _context.PaymentTransactions
+            .Where(t => t.PaymentStatus == PaymentStatus.HeldInEscrow && !t.IsDeleted)
+            .SumAsync(t => (decimal?)t.Amount) ?? 0m;
+
+        var totalReleased = await _context.PaymentTransactions
+            .Where(t => t.PaymentStatus == PaymentStatus.ReleasedToContractor && !t.IsDeleted)
+            .SumAsync(t => (decimal?)t.NetAmount) ?? 0m;
+
+        var activeContractsCount = await _context.ProjectContracts
+            .CountAsync(c => c.Status == ProjectStatus.InProgress && !c.IsDeleted);
+
+        var totalTransactionsCount = await _context.PaymentTransactions
+            .CountAsync(t => !t.IsDeleted);
+
+        var recentTransactions = await _context.PaymentTransactions
+            .Include(t => t.Contract).ThenInclude(c => c.ProjectRequest)
+            .Include(t => t.Milestone)
+            .Include(t => t.Client).ThenInclude(cl => cl.User)
+            .Include(t => t.Contractor)
+            .Where(t => !t.IsDeleted)
+            .OrderByDescending(t => t.CreatedAt)
+            .Take(30)
+            .Select(t => new AdminEscrowTransactionDto
+            {
+                Id = t.Id,
+                TransactionReference = t.TransactionReference,
+                ContractId = t.ProjectContractId,
+                ProjectTitle = t.Contract.ProjectRequest.Title,
+                MilestoneTitle = t.Milestone != null ? t.Milestone.Title : "دفعة تعاقدية عامة",
+                ClientName = t.Client.User.FullName,
+                ContractorCompanyName = t.Contractor.CompanyName,
+                Amount = t.Amount,
+                FeeAmount = t.PlatformFee,
+                NetAmount = t.NetAmount,
+                Status = t.PaymentStatus,
+                Method = t.PaymentMethod,
+                CreatedAt = t.CreatedAt,
+                EscrowLockedAt = t.EscrowLockedAt,
+                EscrowReleasedAt = t.EscrowReleasedAt
+            })
+            .ToListAsync();
+
+        return new AdminFinancialDashboardDto
+        {
+            TotalContractVolume = totalVolume,
+            TotalHeldInEscrow = totalHeldInEscrow,
+            TotalReleasedToContractors = totalReleased,
+            TotalPlatformCommission = totalCommission,
+            ActiveEscrowContractsCount = activeContractsCount,
+            TotalTransactionsCount = totalTransactionsCount,
+            RecentTransactions = recentTransactions
         };
     }
 }

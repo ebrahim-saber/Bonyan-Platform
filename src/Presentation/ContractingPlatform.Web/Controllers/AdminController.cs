@@ -23,8 +23,7 @@ public class AdminController : Controller
     public async Task<IActionResult> Index()
     {
         var stats = await _adminService.GetPlatformStatisticsAsync();
-        ViewBag.Stats = stats;
-        return View();
+        return View(stats);
     }
 
     [HttpGet]
@@ -67,5 +66,12 @@ public class AdminController : Controller
             .ToListAsync();
 
         return View(projects);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Finances()
+    {
+        var dashboard = await _adminService.GetFinancialDashboardAsync();
+        return View(dashboard);
     }
 }

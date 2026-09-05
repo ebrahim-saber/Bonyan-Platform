@@ -126,4 +126,17 @@ public class ContractsController : Controller
 
         return RedirectToAction(nameof(Details), new { id = contractId });
     }
+
+    [HttpGet]
+    public async Task<IActionResult> PrintContract(int id)
+    {
+        var result = await _contractService.GetPrintableContractAsync(id, _currentUserService.UserId, User.IsInRole(nameof(UserType.Admin)));
+        if (!result.Success || result.Data == null)
+        {
+            TempData["ErrorMessage"] = result.Message;
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        return View(result.Data);
+    }
 }

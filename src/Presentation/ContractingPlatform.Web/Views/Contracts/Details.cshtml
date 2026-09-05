@@ -58,10 +58,14 @@
                         </div>
                         <span>تاريخ التعاقد: <strong class="text-dark">@Model.StartDate.ToString("yyyy/MM/dd")</strong></span>
                     </div>
-                    <div class="mt-2">
+                    <div class="mt-2 d-flex flex-wrap gap-2">
                         <a href="@Url.Action("Index", "Messages", new { contractId = Model.Id })" class="btn btn-outline-custom btn-sm py-2 px-3 d-inline-flex align-items-center gap-2">
                             <i class="bi bi-chat-dots-fill text-primary"></i>
                             <span>بدء محادثة فورية مع @(User.IsInRole("Client") ? "المقاول" : "العميل")</span>
+                        </a>
+                        <a asp-action="PrintContract" asp-route-id="@Model.Id" target="_blank" class="btn btn-outline-dark btn-sm py-2 px-3 d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-file-earmark-text text-secondary"></i>
+                            <span>وثيقة العقد الموحد (طباعة/PDF)</span>
                         </a>
                     </div>
                 </div>

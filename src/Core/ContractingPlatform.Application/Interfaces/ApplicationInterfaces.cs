@@ -7,6 +7,7 @@ using ContractingPlatform.Application.DTOs.Notifications;
 using ContractingPlatform.Application.DTOs.Chat;
 using ContractingPlatform.Application.DTOs.Payments;
 using ContractingPlatform.Application.DTOs.Contractors;
+using ContractingPlatform.Application.DTOs.Admin;
 using ContractingPlatform.Domain.Entities;
 using ContractingPlatform.Domain.Enums;
 
@@ -45,6 +46,7 @@ public interface IContractService
     Task<List<ContractDetailsDto>> GetUserContractsAsync(string userId, UserType userType);
     Task<ApiResponse<bool>> SubmitMilestoneProofAsync(SubmitMilestoneProofDto dto, int contractorProfileId);
     Task<ApiResponse<bool>> ApproveMilestoneAndReleasePaymentAsync(int milestoneId, int clientProfileId, string? notes);
+    Task<ApiResponse<PrintableContractDto>> GetPrintableContractAsync(int contractId, string? requestingUserId = null, bool isAdmin = false);
 }
 
 public interface IReviewService
@@ -57,7 +59,8 @@ public interface IAdminService
 {
     Task<List<ContractorProfile>> GetPendingContractorsAsync();
     Task<ApiResponse<bool>> UpdateContractorStatusAsync(int contractorProfileId, VerificationStatus status, string? notes);
-    Task<object> GetPlatformStatisticsAsync();
+    Task<PlatformStatisticsDto> GetPlatformStatisticsAsync();
+    Task<AdminFinancialDashboardDto> GetFinancialDashboardAsync();
 }
 
 public interface ISecurityAuditService

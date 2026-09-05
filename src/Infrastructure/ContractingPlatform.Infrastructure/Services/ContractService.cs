@@ -320,4 +320,111 @@ public class ContractService : IContractService
             return ApiResponse<bool>.Fail($"حدث خطأ أثناء معالجة الإفراج المالي: {ex.Message}");
         }
     }
+
+    public async Task<ApiResponse<PrintableContractDto>> GetPrintableContractAsync(int contractId, string? requestingUserId = null, bool isAdmin = false)
+    {
+        var contract = await _context.ProjectContracts
+            .Include(c => c.ProjectRequest).ThenInclude(p => p.Category)
+            .Include(c => c.Client).ThenInclude(cl => cl.User)
+            .Include(c => c.Contractor).ThenInclude(co => co.User)
+            .Include(c => c.Milestones.OrderBy(m => m.OrderIndex)).ThenInclude(m => m.Transaction)
+            .FirstOrDefaultAsync(c => c.Id == contractId && !c.IsDeleted);
+
+        if (contract == null)
+        {
+            return ApiResponse<PrintableContractDto>.Fail("العقد المطلوب غير موجود");
+        }
+
+        // BOLA defense: Only Client, Contractor, or Admin can view the printable contract
+        if (!isAdmin && !string.IsNullOrEmpty(requestingUserId))
+        {
+            bool isClient = contract.Client?.UserId == requestingUserId;
+            bool isContractor = contract.Contractor?.UserId == requestingUserId;
+
+            if (!isClient && !isContractor)
+            {
+                await _securityAuditService.LogSecurityEventAsync(
+                    "UNAUTHORIZED_CONTRACT_PRINT_BLOCKED",
+                    $"User '{requestingUserId}' attempted unauthorized view of Printable Contract #{contractId}",
+                    userId: requestingUserId,
+                    isSuspicious: true);
+
+                return ApiResponse<PrintableContractDto>.Fail("غير مصرح لك بالاطلاع أو طباعة هذا العقد");
+            }
+        }
+
+        var totalAmount = contract.TotalAmount;
+        decimal vatRate = 0.15m;
+        decimal taxAmount = Math.Round(totalAmount * vatRate, 2);
+        decimal totalWithTax = totalAmount + taxAmount;
+
+        int durationDays = 0;
+        if (contract.ExpectedEndDate.HasValue)
+        {
+            durationDays = (int)(contract.ExpectedEndDate.Value - contract.StartDate).TotalDays;
+            if (durationDays <= 0) durationDays = 30;
+        }
+        else
+        {
+            durationDays = 60;
+        }
+
+        var dto = new PrintableContractDto
+        {
+            Id = contract.Id,
+            ContractNumber = $"BYN-CON-{contract.Id:D5}-{contract.StartDate.Year}",
+            ProjectRequestId = contract.ProjectRequestId,
+            ProjectTitle = contract.ProjectRequest?.Title ?? "مشروع مقاولات وتوريد",
+            ProjectDescription = contract.ProjectRequest?.Description ?? string.Empty,
+            CategoryName = contract.ProjectRequest?.Category?.NameAr ?? "أعمال المقاولات والتشطيب",
+            City = contract.ProjectRequest?.City ?? contract.Client?.City ?? "المملكة العربية السعودية",
+            District = contract.ProjectRequest?.District ?? contract.Client?.District ?? string.Empty,
+            DetailedAddress = contract.ProjectRequest?.DetailedAddress,
+
+            // Client Info
+            ClientFullName = contract.Client?.User?.FullName ?? "الطرف الأول (صاحب العمل)",
+            ClientNationalIdOrIqama = contract.Client?.NationalIdOrIqama ?? "سجل مدني موثق بالمنصة",
+            ClientPhone = contract.Client?.User?.PhoneNumber ?? string.Empty,
+            ClientEmail = contract.Client?.User?.Email ?? string.Empty,
+
+            // Contractor Info
+            ContractorCompanyName = contract.Contractor?.CompanyName ?? "الطرف الثاني (المقاول)",
+            CommercialRegistrationNo = contract.Contractor?.CommercialRegistrationNo ?? "سجل تجاري مسجل",
+            TaxNumber = contract.Contractor?.TaxNumber ?? "300012345678003",
+            ContractorRepresentativeName = contract.Contractor?.User?.FullName ?? "المفوض بالتوقيع",
+            ContractorPhone = contract.Contractor?.User?.PhoneNumber ?? string.Empty,
+            ContractorEmail = contract.Contractor?.User?.Email ?? string.Empty,
+            IsContractorVerified = contract.Contractor?.VerificationStatus == VerificationStatus.Approved,
+
+            // Financials
+            TotalAmount = totalAmount,
+            TaxAmount = taxAmount,
+            TotalWithTax = totalWithTax,
+            PlatformCommissionAmount = contract.PlatformCommissionAmount,
+            ContractorNetAmount = contract.ContractorNetAmount,
+            ContractDate = contract.StartDate,
+            ExpectedCompletionDate = contract.ExpectedEndDate,
+            TotalDurationDays = durationDays,
+            Status = contract.Status,
+
+            // Milestones
+            Milestones = contract.Milestones.OrderBy(m => m.OrderIndex).Select(m => new PrintableMilestoneDto
+            {
+                OrderIndex = m.OrderIndex,
+                Title = m.Title,
+                Description = m.Description,
+                Amount = m.Amount,
+                Percentage = totalAmount > 0 ? Math.Round((double)(m.Amount / totalAmount) * 100, 1) : 0,
+                Status = m.Status,
+                DueDate = m.DueDate,
+                IsFundedInEscrow = m.Transaction != null && (m.Transaction.PaymentStatus == PaymentStatus.HeldInEscrow || m.Transaction.PaymentStatus == PaymentStatus.ReleasedToContractor)
+            }).ToList(),
+
+            TermsAndConditions = contract.TermsAndConditions,
+            VerificationSealCode = $"SEC-VERIFY-BYN-{contract.Id:D4}-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}",
+            EscrowGuaranteeReference = $"ESC-BYN-{contract.Id:D4}"
+        };
+
+        return ApiResponse<PrintableContractDto>.Ok(dto);
+    }
 }
