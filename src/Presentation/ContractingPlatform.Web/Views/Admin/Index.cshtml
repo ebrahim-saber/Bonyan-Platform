@@ -1,110 +1,152 @@
 @{
-    ViewData["Title"] = "لوحة تحكم الإدارة العامة - منصة بُنيان";
+    ViewData["Title"] = "لوحة القيادة والإدارة العامة - منصة بُنيان";
     dynamic stats = ViewBag.Stats;
 }
 
 <div class="container py-4">
-    <div class="mb-4">
-        <h3 class="fw-bold mb-1"><i class="bi bi-speedometer2 text-danger me-2"></i>لوحة تحكم وإدارة المنصة</h3>
-        <p class="text-muted small mb-0">نظرة شاملة على أداء المنصة، المعاملات المالية، وعمليات التوثيق</p>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge-soft-primary mb-2 d-inline-block">الإدارة والرقابة المركزية</span>
+            <h2 class="fw-extrabold text-dark mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-speedometer2 text-primary"></i>
+                <span>لوحة تحكم المنظومة والمؤشرات الحيوية</span>
+            </h2>
+            <p class="text-muted small mb-0">نظرة استراتيجية شاملة على حجم التدفقات المالية للضمان، التراخيص والسجلات، وسير المشاريع.</p>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a asp-action="Contractors" class="btn btn-outline-custom">
+                <i class="bi bi-shield-check text-warning me-1"></i> فحص التراخيص
+            </a>
+            <a asp-action="Projects" class="btn btn-primary-custom">
+                <i class="bi bi-kanban me-1"></i> المشاريع الميدانية
+            </a>
+        </div>
     </div>
 
     <!-- Stats Grid -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-3 col-md-6">
-            <div class="card card-custom p-4 border-start border-primary border-4">
-                <div class="d-flex justify-content-between align-items-center">
+    <div class="row g-4 mb-5">
+        <div class="col-lg-3 col-sm-6">
+            <div class="card card-custom p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="text-muted small d-block mb-1">إجمالي المشاريع</span>
-                        <h3 class="fw-bold mb-0">@stats.TotalProjects</h3>
+                        <span class="text-muted small fw-semibold d-block mb-1">إجمالي المشاريع</span>
+                        <h3 class="fw-extrabold text-dark mb-0">@stats.TotalProjects</h3>
                     </div>
-                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3">
-                        <i class="bi bi-briefcase fs-3"></i>
+                    <div class="category-icon-box" style="background: rgba(11, 19, 43, 0.06); color: var(--brand-navy); width: 48px; height: 48px; font-size: 1.3rem;">
+                        <i class="bi bi-briefcase-fill"></i>
                     </div>
                 </div>
-                <div class="mt-2 small text-muted">
-                    <span class="text-success fw-bold">@stats.ActiveProjects</span> جاري التنفيذ | <span class="text-primary fw-bold">@stats.OpenProjects</span> مفتوح
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
+                    <span class="badge-soft-success">@stats.ActiveProjects قيد التنفيذ</span>
+                    <span class="badge-soft-primary">@stats.OpenProjects مفتوح</span>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6">
-            <div class="card card-custom p-4 border-start border-success border-4">
-                <div class="d-flex justify-content-between align-items-center">
+        <div class="col-lg-3 col-sm-6">
+            <div class="card card-custom p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="text-muted small d-block mb-1">حجم المعاملات والتعاقدات</span>
-                        <h3 class="fw-bold mb-0 text-success">@(((decimal)stats.TotalVolume).ToString("N0")) <small class="fs-6">ر.س</small></h3>
+                        <span class="text-muted small fw-semibold d-block mb-1">إجمالي قيمة التعاقدات (Escrow)</span>
+                        <h3 class="fw-extrabold text-success mb-0">
+                            @(((decimal)stats.TotalVolume).ToString("N0")) <small class="fs-6 fw-normal text-muted">ر.س</small>
+                        </h3>
                     </div>
-                    <div class="rounded-circle bg-success bg-opacity-10 text-success p-3">
-                        <i class="bi bi-cash-stack fs-3"></i>
+                    <div class="category-icon-box" style="background: rgba(16, 185, 129, 0.1); color: var(--escrow-emerald); width: 48px; height: 48px; font-size: 1.3rem;">
+                        <i class="bi bi-cash-stack"></i>
                     </div>
                 </div>
-                <div class="mt-2 small text-muted">
-                    عمولات المنصة المحصلة: <strong>@(((decimal)stats.TotalPlatformCommission).ToString("N0")) ر.س</strong>
+                <div class="pt-2 border-top small text-muted">
+                    <span>عمولات المنصة: </span>
+                    <strong class="text-dark">@(((decimal)stats.TotalPlatformCommission).ToString("N0")) ر.س</strong>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6">
-            <div class="card card-custom p-4 border-start border-warning border-4">
-                <div class="d-flex justify-content-between align-items-center">
+        <div class="col-lg-3 col-sm-6">
+            <div class="card card-custom p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="text-muted small d-block mb-1">المقاولون والمنشآت</span>
-                        <h3 class="fw-bold mb-0">@stats.TotalContractors</h3>
+                        <span class="text-muted small fw-semibold d-block mb-1">المقاولون والمنشآت</span>
+                        <h3 class="fw-extrabold text-dark mb-0">@stats.TotalContractors</h3>
                     </div>
-                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning p-3">
-                        <i class="bi bi-tools fs-3"></i>
+                    <div class="category-icon-box" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-amber); width: 48px; height: 48px; font-size: 1.3rem;">
+                        <i class="bi bi-tools"></i>
                     </div>
                 </div>
-                <div class="mt-2 small text-muted">
-                    <span class="text-success fw-bold">@stats.ApprovedContractors</span> معتمد | <span class="text-warning fw-bold">@stats.PendingContractors</span> بانتظار الفحص
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
+                    <span class="badge-soft-success">@stats.ApprovedContractors معتمد</span>
+                    <span class="badge-soft-warning">@stats.PendingContractors بانتظار الفحص</span>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6">
-            <div class="card card-custom p-4 border-start border-info border-4">
-                <div class="d-flex justify-content-between align-items-center">
+        <div class="col-lg-3 col-sm-6">
+            <div class="card card-custom p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="text-muted small d-block mb-1">العملاء والطلبات</span>
-                        <h3 class="fw-bold mb-0">@stats.TotalClients</h3>
+                        <span class="text-muted small fw-semibold d-block mb-1">العملاء والعروض</span>
+                        <h3 class="fw-extrabold text-dark mb-0">@stats.TotalClients</h3>
                     </div>
-                    <div class="rounded-circle bg-info bg-opacity-10 text-info p-3">
-                        <i class="bi bi-people fs-3"></i>
+                    <div class="category-icon-box" style="background: rgba(14, 165, 233, 0.1); color: #0284c7; width: 48px; height: 48px; font-size: 1.3rem;">
+                        <i class="bi bi-people-fill"></i>
                     </div>
                 </div>
-                <div class="mt-2 small text-muted">
-                    إجمالي عروض الأسعار: <strong>@stats.TotalBids عرض</strong>
+                <div class="pt-2 border-top small text-muted">
+                    <span>إجمالي العروض المقدمة: </span>
+                    <strong class="text-dark">@stats.TotalBids عرض</strong>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Action Cards -->
+    <!-- Operations & Quick Actions -->
     <div class="row g-4">
         <div class="col-md-6">
-            <div class="card card-custom p-4 border">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-shield-check text-warning me-2"></i>طلبات توثيق المنشآت</h5>
-                    <a asp-action="Contractors" class="btn btn-outline-primary btn-sm">إدارة كافة المقاولين</a>
+            <div class="card card-custom p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="badge-soft-warning mb-2 d-inline-block">التوثيق والتراخيص</span>
+                        <h4 class="fw-extrabold text-dark mb-1 d-flex align-items-center gap-2">
+                            <i class="bi bi-patch-check-fill text-warning"></i>
+                            <span>فحص وتدقيق المنشآت</span>
+                        </h4>
+                    </div>
+                    <a asp-action="Contractors" class="btn btn-outline-custom btn-sm">سجل المقاولين</a>
                 </div>
-                <p class="text-muted small mb-3">فحص السجلات التجارية والتراخيص الرسمية للمقاولين لضمان موثوقية المنصة وجودة التنفيذ.</p>
-                <a asp-action="Contractors" class="btn btn-primary-custom">
-                    فحص طلبات التوثيق المعلقة (@stats.PendingContractors)
-                </a>
+                <p class="text-secondary small mb-4" style="line-height: 1.7;">
+                    التحقق من صحة السجلات التجارية وتراخيص المقاولين المعتمدة لدى وزارة التجارة والهيئة السعودية للمقاولين لضمان موثوقية المنظومة.
+                </p>
+                <div class="mt-auto">
+                    <a asp-action="Contractors" class="btn btn-primary-custom w-100 d-flex align-items-center justify-content-center gap-2">
+                        <span>فحص طلبات الاعتماد الجديدة (@stats.PendingContractors طلب)</span>
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                </div>
             </div>
         </div>
 
         <div class="col-md-6">
-            <div class="card card-custom p-4 border">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-kanban text-primary me-2"></i>مراقبة كافة المشاريع</h5>
-                    <a asp-action="Projects" class="btn btn-outline-primary btn-sm">استعراض المشاريع</a>
+            <div class="card card-custom p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="badge-soft-primary mb-2 d-inline-block">الميدان والرقابة</span>
+                        <h4 class="fw-extrabold text-dark mb-1 d-flex align-items-center gap-2">
+                            <i class="bi bi-kanban-fill text-primary"></i>
+                            <span>متابعة العقود والمشاريع</span>
+                        </h4>
+                    </div>
+                    <a asp-action="Projects" class="btn btn-outline-custom btn-sm">استعراض المشاريع</a>
                 </div>
-                <p class="text-muted small mb-3">متابعة كافة طلبات المشاريع المنشورة، نسب الإنجاز، وفض النزاعات إن وجدت.</p>
-                <a asp-action="Projects" class="btn btn-outline-primary">
-                    عرض كافة المشاريع الميدانية
-                </a>
+                <p class="text-secondary small mb-4" style="line-height: 1.7;">
+                    متابعة سير مراحل الأعمال الإنشائية والتشطيبية، وتتبع حالات حساب الضمان المشترك ومراقبة مؤشرات الرضا وتسوية الملاحظات.
+                </p>
+                <div class="mt-auto">
+                    <a asp-action="Projects" class="btn btn-outline-custom w-100 d-flex align-items-center justify-content-center gap-2">
+                        <span>عرض كافة المشاريع قيد التنفيذ والمنتهية</span>
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

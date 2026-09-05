@@ -2,7 +2,7 @@
 @using ContractingPlatform.Application.DTOs.Projects
 @model List<ProjectCardDto>
 @{
-    ViewData["Title"] = "تصفح مشاريع المقاولات والتشطيب المتاحة";
+    ViewData["Title"] = "سوق المشاريع - تصفح فرص المقاولات والتشطيب المتاحة";
     var categories = ViewBag.Categories as List<Category> ?? new();
     int? selectedCategory = ViewBag.SelectedCategory as int?;
     string? selectedCity = ViewBag.SelectedCity as string;
@@ -10,26 +10,33 @@
 
 <div class="container py-4">
     <!-- Header & Search Filter Card -->
-    <div class="card card-custom p-4 mb-4 border">
-        <div class="row align-items-center mb-3">
+    <div class="card card-custom p-4 mb-4">
+        <div class="row align-items-center mb-4">
             <div class="col-md-8">
-                <h3 class="fw-bold mb-1"><i class="bi bi-briefcase text-primary me-2"></i>فرص المشاريع المفتوحة للعروض</h3>
-                <p class="text-muted small mb-0">استعرض متطلبات العملاء وقدم عروض أسعارك التنافسية مباشرة</p>
+                <span class="badge-soft-primary mb-2 d-inline-block">سوق المناقصات والمشاريع المفتوحة</span>
+                <h2 class="fw-extrabold text-dark mb-1 d-flex align-items-center gap-2">
+                    <i class="bi bi-briefcase-fill text-primary"></i>
+                    <span>فرص المشاريع المتاحة لتقديم العروض</span>
+                </h2>
+                <p class="text-muted small mb-0">استعرض متطلبات العملاء وقدم عروض أسعارك ومواصفاتك الفنية بكل شفافية وموثوقية.</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 @if (User.IsInRole("Client"))
                 {
-                    <a asp-action="Create" class="btn btn-primary-custom">
-                        <i class="bi bi-plus-circle me-1"></i> طرح مشروع جديد
+                    <a asp-action="Create" class="btn btn-accent shadow-gold d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span>طرح مشروع جديد</span>
                     </a>
                 }
             </div>
         </div>
 
-        <form method="get" asp-action="Index" class="row g-3">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
             <div class="col-md-5">
-                <label class="form-label small fw-bold">تصنيف المقاولات</label>
-                <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                <label class="form-label small fw-bold text-secondary">
+                    <i class="bi bi-grid text-primary me-1"></i> تصنيف وقطاع المقاولات
+                </label>
+                <select name="categoryId" class="form-select border shadow-none py-2" onchange="this.form.submit()">
                     <option value="">جميع القطاعات والخدمات</option>
                     @foreach (var c in categories)
                     {
@@ -38,25 +45,43 @@
                 </select>
             </div>
             <div class="col-md-5">
-                <label class="form-label small fw-bold">المدينة</label>
+                <label class="form-label small fw-bold text-secondary">
+                    <i class="bi bi-geo-alt text-danger me-1"></i> المدينة
+                </label>
                 <div class="input-group">
-                    <input type="text" name="city" value="@selectedCity" class="form-control" placeholder="اكتب اسم المدينة (مثال: الرياض)..." />
-                    <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i> تصفية</button>
+                    <input type="text" name="city" value="@selectedCity" class="form-control border shadow-none py-2" placeholder="اكتب اسم المدينة (مثال: الرياض، جدة، الخبر)..." />
+                    <button type="submit" class="btn btn-primary-custom px-3">
+                        <i class="bi bi-search me-1"></i> تصفية
+                    </button>
                 </div>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <a asp-action="Index" class="btn btn-outline-danger w-100"><i class="bi bi-arrow-clockwise me-1"></i> إعادة ضبط</a>
+            <div class="col-md-2">
+                <a asp-action="Index" class="btn btn-outline-custom w-100 py-2 text-center text-danger border-danger-subtle">
+                    <i class="bi bi-arrow-clockwise me-1"></i> إعادة ضبط
+                </a>
             </div>
         </form>
     </div>
 
-    <!-- Projects List -->
+    <!-- Projects Grid -->
     @if (!Model.Any())
     {
         <div class="card card-custom p-5 text-center my-4">
-            <i class="bi bi-inbox text-muted display-3 mb-3"></i>
-            <h4 class="fw-bold">لا توجد مشاريع مطابقة لخيارات البحث حالياً</h4>
-            <p class="text-muted small">جرب تغيير المدينة أو اختيار تصنيف آخر، أو قم بطرح مشروعك الآن ليصل لمئات المقاولين.</p>
+            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                <i class="bi bi-inbox-fill text-muted fs-1"></i>
+            </div>
+            <h4 class="fw-bold text-dark">لا توجد مشاريع مطابقة لخيارات البحث حالياً</h4>
+            <p class="text-muted small mx-auto" style="max-width: 500px;">
+                جرب تغيير المدينة أو اختيار تصنيف آخر، أو قم بطرح مشروعك الآن ليصل لمئات المقاولين المعتمدين فوراً.
+            </p>
+            @if (User.IsInRole("Client"))
+            {
+                <div class="mt-2">
+                    <a asp-action="Create" class="btn btn-primary-custom">
+                        <i class="bi bi-plus-circle me-1"></i> طرح أول مشروع الآن
+                    </a>
+                </div>
+            }
         </div>
     }
     else
@@ -65,13 +90,16 @@
             @foreach (var p in Model)
             {
                 <div class="col-lg-4 col-md-6">
-                    <div class="card card-custom h-100 d-flex flex-column border">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                    <div class="card card-custom h-100 d-flex flex-column">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge-soft-primary">
                                     <i class="bi @p.CategoryIcon me-1"></i> @p.CategoryName
                                 </span>
-                                <span class="badge bg-success-subtle text-success">متاح للعروض</span>
+                                <span class="badge-soft-success d-inline-flex align-items-center gap-1">
+                                    <span class="pulse-dot" style="width: 7px; height: 7px;"></span>
+                                    <span>متاح للعروض</span>
+                                </span>
                             </div>
 
                             <h5 class="fw-bold mb-2">
@@ -80,36 +108,42 @@
                                 </a>
                             </h5>
 
-                            <p class="text-muted small mb-3 flex-grow-1">@p.Description</p>
+                            <p class="text-secondary small mb-3 flex-grow-1" style="line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @p.Description
+                            </p>
 
                             <div class="text-muted small mb-3">
-                                <div class="d-flex align-items-center gap-1 mb-1">
-                                    <i class="bi bi-geo-alt text-danger"></i>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i>
                                     <span>@p.City - @p.District</span>
                                 </div>
-                                <div class="d-flex align-items-center gap-1">
-                                    <i class="bi bi-person text-secondary"></i>
-                                    <span>صاحب المشروع: @p.ClientName</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-person-fill text-secondary"></i>
+                                    <span>صاحب المشروع: <strong>@p.ClientName</strong></span>
                                 </div>
                             </div>
 
-                            <div class="bg-light p-2 rounded small d-flex justify-content-between mb-3">
+                            <!-- Budget and Bids stats strip -->
+                            <div class="bg-light p-3 rounded-3 small d-flex justify-content-between align-items-center border mb-3">
                                 <div>
-                                    <span class="text-muted d-block">الميزانية المتوقعة:</span>
-                                    <span class="fw-bold text-success">
+                                    <span class="text-muted d-block small mb-1">الميزانية المتوقعة:</span>
+                                    <span class="fw-bold text-success fs-6">
                                         @(p.ExpectedBudgetMin.HasValue ? $"{p.ExpectedBudgetMin:N0} - {p.ExpectedBudgetMax:N0} ر.س" : "حسب العروض")
                                     </span>
                                 </div>
                                 <div class="text-end">
-                                    <span class="text-muted d-block">العروض:</span>
-                                    <span class="fw-bold text-primary">@p.BidsCount عروض</span>
+                                    <span class="text-muted d-block small mb-1">العروض:</span>
+                                    <span class="badge bg-white text-primary border fw-bold px-2 py-1">
+                                        <i class="bi bi-chat-left-text me-1"></i> @p.BidsCount عروض
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="card-footer bg-white border-top-0 pt-0 pb-3">
-                            <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-primary w-100">
-                                عرض التفاصيل وتقديم عرض <i class="bi bi-arrow-left"></i>
+                        <div class="card-footer bg-transparent border-0 px-4 pb-4 pt-0">
+                            <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-custom w-100 d-flex align-items-center justify-content-center gap-2">
+                                <span>عرض التفاصيل والمواصفات</span>
+                                <i class="bi bi-arrow-left"></i>
                             </a>
                         </div>
                     </div>

@@ -1,121 +1,215 @@
 @using ContractingPlatform.Domain.Entities
 @using ContractingPlatform.Application.DTOs.Projects
 @{
-    ViewData["Title"] = "الرئيسية - بوابتك الذكية لخدمات المقاولات والتشطيب";
+    ViewData["Title"] = "منصة بُنيان - المنظومة الذكية لمشاريع المقاولات والتشطيب وحساب الضمان";
     var categories = ViewBag.Categories as List<Category> ?? new();
     var latestProjects = ViewBag.LatestProjects as List<ProjectCardDto> ?? new();
 }
 
-<!-- Hero Banner -->
-<div class="hero-banner">
-    <div class="container text-center py-4">
-        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
-            <i class="bi bi-shield-check me-1"></i> أول منصة مقاولات بنظام الدفعات المجمدة والضمان المالي
-        </span>
-        <h1 class="display-4 fw-extrabold mb-3">ابنِ، شطّب، ونفّذ مشاريعك بثقة تامة</h1>
-        <p class="lead mb-4 mx-auto text-light opacity-90" style="max-width: 700px;">
-            اربط مشروعك مع نخبة المقاولين والمنشآت المعتمدة بالسجل التجاري، قارن عروض الأسعار، وأدر دفعاتك ومراحل التنفيذ من شاشة واحدة بكل أمان.
-        </p>
+<!-- Modern Hero Section -->
+<div class="hero-wrapper">
+    <div class="hero-mesh-overlay"></div>
+    <div class="container position-relative py-5">
+        <div class="row align-items-center justify-content-center text-center">
+            <div class="col-xl-9 col-lg-10">
+                <!-- Floating Trust Badge -->
+                <div class="hero-badge-pill">
+                    <span class="pulse-dot"></span>
+                    <span>المنصة الأولى المعتمدة بنظام الدفعات المجمدة والمحمية (Escrow Protection)</span>
+                </div>
 
-        <!-- Quick Search Bar -->
-        <div class="card p-2 shadow-lg mx-auto" style="max-width: 850px; border-radius: 16px;">
-            <form asp-controller="Projects" asp-action="Index" method="get" class="row g-2 align-items-center">
-                <div class="col-md-5">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-0"><i class="bi bi-geo-alt text-danger"></i></span>
-                        <input type="text" name="city" class="form-control border-0 shadow-none" placeholder="المدينة (الرياض، جدة، الدمام...)">
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-0"><i class="bi bi-grid text-primary"></i></span>
-                        <select name="categoryId" class="form-select border-0 shadow-none">
-                            <option value="">جميع قطاعات المقاولات والخدمات</option>
-                            @foreach (var cat in categories)
-                            {
-                                <option value="@cat.Id">@cat.NameAr</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary-custom w-100 py-2">
-                        <i class="bi bi-search me-1"></i> بحث
-                    </button>
-                </div>
-            </form>
-        </div>
+                <!-- Main Heading -->
+                <h1 class="display-3 fw-extrabold mb-4 text-white" style="letter-spacing: -0.02em; line-height: 1.25;">
+                    ابنِ، شطّب، ونفّذ مشاريعك
+                    <span style="background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">بأعلى معايير الثقة والضمان المالي</span>
+                </h1>
 
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <a asp-controller="Projects" asp-action="Create" class="btn btn-accent px-4 py-2">
-                <i class="bi bi-plus-circle me-1"></i> أعلن عن مشروعك مجاناً
-            </a>
-            <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-outline-light px-4 py-2">
-                <i class="bi bi-tools me-1"></i> سجل كشريك مقاول
-            </a>
+                <!-- Subtitle -->
+                <p class="lead mb-5 mx-auto text-light opacity-90 fw-normal" style="max-width: 780px; font-size: 1.2rem; line-height: 1.8;">
+                    صل مشروعك بنخبة مقاولي الإنشاءات والتشطيب المعتمدين بالسجل التجاري. قارن عروض الأسعار التنافسية، ووقّع عقوداً إلكترونية ملزمة تدير من خلالها دفعاتك ومراحل البناء بكل أمان وسلاسة.
+                </p>
+
+                <!-- Modern Search Bar Card -->
+                <div class="hero-search-card mx-auto mb-4" style="max-width: 860px;">
+                    <form asp-controller="Projects" asp-action="Index" method="get" class="row g-2 align-items-center">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                    <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                                </span>
+                                <input type="text" name="city" class="form-control border-0 shadow-none ps-1 py-2 fw-semibold" placeholder="المدينة (الرياض، جدة، الدمام...)">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="input-group border-end border-light">
+                                <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                    <i class="bi bi-grid-fill text-primary fs-5"></i>
+                                </span>
+                                <select name="categoryId" class="form-select border-0 shadow-none ps-1 py-2 fw-semibold text-secondary">
+                                    <option value="">كافة قطاعات المقاولات والتشطيبات</option>
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat.Id">@cat.NameAr</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary-custom w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-search"></i>
+                                <span>بحث</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Call to Action Buttons -->
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a asp-controller="Projects" asp-action="Create" class="btn btn-accent px-4 py-2 fs-6 d-inline-flex align-items-center gap-2 shadow-gold">
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span>اطرح مشروعك مجاناً</span>
+                    </a>
+                    <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-outline-light px-4 py-2 fs-6 d-inline-flex align-items-center gap-2" style="border-width: 1.5px; border-radius: 10px;">
+                        <i class="bi bi-building-check"></i>
+                        <span>انضم كمنشأة مقاولات معتمدة</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="container mb-5">
-    <!-- How It Works Section -->
-    <div class="text-center mb-5">
-        <h6 class="text-primary fw-bold text-uppercase">خطوات بسيطة ومضمونة</h6>
-        <h2 class="fw-bold">كيف تعمل منصة بُنيان لحمايتك؟</h2>
+    <!-- Trust Stats Strip (Elevated floating strip overlapping hero) -->
+    <div class="trust-strip mb-5">
+        <div class="row g-4 align-items-center text-start">
+            <div class="col-lg-3 col-sm-6">
+                <div class="trust-stat-item">
+                    <div class="trust-stat-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-extrabold mb-0 text-dark">+250</h4>
+                        <span class="text-muted small fw-semibold">مقاول معتمد بالسجل التجاري</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="trust-stat-item">
+                    <div class="trust-stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-extrabold mb-0 text-dark">100%</h4>
+                        <span class="text-muted small fw-semibold">حماية مالية عبر حساب الضمان</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="trust-stat-item">
+                    <div class="trust-stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-file-earmark-ruled-fill"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-extrabold mb-0 text-dark">كود البناء</h4>
+                        <span class="text-muted small fw-semibold">مطابقة المواصفات الفنية المعتمدة</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="trust-stat-item">
+                    <div class="trust-stat-icon bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-extrabold mb-0 text-dark">عقود ملزمة</h4>
+                        <span class="text-muted small fw-semibold">مراحل محددة ودفعات مجدولة</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row g-4 text-center mb-5">
+    <!-- How It Works Section -->
+    <div class="text-center my-5 py-3">
+        <span class="badge-soft-primary mb-2 d-inline-block">آلية عمل آمنة ومدروسة</span>
+        <h2 class="fw-extrabold text-dark mb-2">كيف تضمن بُنيان نجاح مشروعك وحماية أموالك؟</h2>
+        <p class="text-muted mx-auto" style="max-width: 600px;">ثلاث خطوات تفصلك عن إنجاز مشروعك بأعلى درجات الاحترافية والموثوقية القانونية والمالية.</p>
+    </div>
+
+    <div class="row g-4 text-start mb-5">
         <div class="col-md-4">
-            <div class="card card-custom p-4 h-100">
-                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
-                    <i class="bi bi-pencil-square fs-2"></i>
+            <div class="card card-custom p-4 h-100 position-relative">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="category-icon-box" style="background: rgba(11, 19, 43, 0.05); color: var(--brand-navy);">
+                        <i class="bi bi-file-text-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-light text-primary border fw-bold fs-6 rounded-pill px-3 py-1">01</span>
                 </div>
-                <h5 class="fw-bold">1. اطرح متطلبات مشروعك</h5>
-                <p class="text-muted small">حدد الموقع، المواصفات، المخططات، والميزانية المتوقعة بكل سهولة وفي دقائق معدودة.</p>
+                <h5 class="fw-bold text-dark mb-2">اطرح متطلبات المشروع</h5>
+                <p class="text-secondary small mb-0" style="line-height: 1.7;">
+                    حدد المدينة، مساحة العقار، نطاق العمل (عظم، تشطيب، ترميم)، المخططات، والميزانية المتوقعة بكل سهولة لتبدأ المنظومة بتوجيهه للمقاولين المناسبين.
+                </p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card card-custom p-4 h-100">
-                <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
-                    <i class="bi bi-card-checklist fs-2"></i>
+            <div class="card card-custom p-4 h-100 position-relative">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="category-icon-box" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-amber);">
+                        <i class="bi bi-calculator-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-light text-warning border fw-bold fs-6 rounded-pill px-3 py-1">02</span>
                 </div>
-                <h5 class="fw-bold">2. استقبل وقارن العروض</h5>
-                <p class="text-muted small">تلقَّ عروض أسعار تفصيلية من مقاولين معتمدين، تصفح سابقة أعمالهم وتقييمات العملاء السابقة.</p>
+                <h5 class="fw-bold text-dark mb-2">استقبل وقارن عروض الأسعار</h5>
+                <p class="text-secondary small mb-0" style="line-height: 1.7;">
+                    تلقَّ عروض أسعار تفصيلية توضح تكلفة المواد والمصنعيات والمدة الزمنية. قارن بين سابقة أعمال المنشآت وتقييمات العملاء الموثقة لاختيار الأنسب.
+                </p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card card-custom p-4 h-100">
-                <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
-                    <i class="bi bi-shield-lock fs-2"></i>
+            <div class="card card-custom p-4 h-100 position-relative">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="category-icon-box" style="background: rgba(16, 185, 129, 0.1); color: var(--escrow-emerald);">
+                        <i class="bi bi-shield-check fs-3"></i>
+                    </div>
+                    <span class="badge bg-light text-success border fw-bold fs-6 rounded-pill px-3 py-1">03</span>
                 </div>
-                <h5 class="fw-bold">3. تعاقد ودفعات مجمدة (Escrow)</h5>
-                <p class="text-muted small">عقد إلكتروني يحدد المراحل، وتجميد الدفعة في المنصة ولا يتم صرفها للمقاول إلا بعد موافقتك على الإنجاز.</p>
+                <h5 class="fw-bold text-dark mb-2">تعاقد بحساب الضمان (Escrow)</h5>
+                <p class="text-secondary small mb-0" style="line-height: 1.7;">
+                    يتم تحرير عقد إلكتروني بمراحل واضحة. تبقى دفعات المشروع مجمدة في حساب الضمان المشترك ولا يتم الإفراج عنها للمقاول إلا بعد استلامك الفعلي للمرحلة.
+                </p>
             </div>
         </div>
     </div>
 
     <!-- Categories Grid -->
-    <div class="d-flex justify-content-between align-items-end mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 pt-3">
         <div>
-            <h6 class="text-primary fw-bold">القطاعات والتخصصات</h6>
-            <h3 class="fw-bold mb-0">تصفح حسب مجال الخدمة</h3>
+            <span class="badge-soft-warning mb-2 d-inline-block">تخصصات شاملة</span>
+            <h3 class="fw-extrabold text-dark mb-0">تصفح قطاعات المقاولات والخدمات</h3>
         </div>
-        <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-primary btn-sm">عرض كل المشاريع <i class="bi bi-arrow-left"></i></a>
+        <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-custom btn-sm d-inline-flex align-items-center gap-1">
+            <span>استعراض كافة القطاعات والمشاريع</span>
+            <i class="bi bi-arrow-left"></i>
+        </a>
     </div>
 
     <div class="row g-3 mb-5">
         @foreach (var cat in categories)
         {
             <div class="col-lg-4 col-md-6">
-                <a asp-controller="Projects" asp-action="Index" asp-route-categoryId="@cat.Id" class="text-decoration-none">
-                    <div class="card card-custom p-3 h-100 d-flex flex-row align-items-center gap-3 border">
-                        <div class="rounded p-3 bg-light text-primary fs-3">
-                            <i class="bi @(cat.IconCss ?? "bi-building")"></i>
+                <a asp-controller="Projects" asp-action="Index" asp-route-categoryId="@cat.Id" class="category-card">
+                    <div class="category-icon-box">
+                        <i class="bi @(cat.IconCss ?? "bi-building")"></i>
+                    </div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <h5 class="fw-bold text-dark mb-0 text-truncate">@cat.NameAr</h5>
+                            <i class="bi bi-arrow-left-short text-muted fs-4"></i>
                         </div>
-                        <div>
-                            <h5 class="fw-bold text-dark mb-1">@cat.NameAr</h5>
-                            <p class="text-muted small mb-0">@(cat.DescriptionAr?.Length > 60 ? cat.DescriptionAr.Substring(0, 60) + "..." : cat.DescriptionAr)</p>
-                        </div>
+                        <p class="text-muted small mb-0 text-truncate">
+                            @(string.IsNullOrEmpty(cat.DescriptionAr) ? "تصفح المشاريع والخدمات المتاحة" : cat.DescriptionAr)
+                        </p>
                     </div>
                 </a>
             </div>
@@ -125,49 +219,63 @@
     <!-- Latest Open Projects -->
     @if (latestProjects.Any())
     {
-        <div class="d-flex justify-content-between align-items-end mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 pt-3">
             <div>
-                <h6 class="text-warning fw-bold">فرص عمل متاحة للمقاولين</h6>
-                <h3 class="fw-bold mb-0">أحدث المشاريع المطروحة للعروض</h3>
+                <span class="badge-soft-success mb-2 d-inline-block">فرص حصرية للمقاولين</span>
+                <h3 class="fw-extrabold text-dark mb-0">أحدث المشاريع المطروحة لتقديم العروض</h3>
             </div>
-            <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-dark btn-sm">تصفح كافة المشاريع <i class="bi bi-arrow-left"></i></a>
+            <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-custom btn-sm d-inline-flex align-items-center gap-1">
+                <span>تصفح سوق المشاريع بالكامل</span>
+                <i class="bi bi-arrow-left"></i>
+            </a>
         </div>
 
         <div class="row g-4 mb-5">
             @foreach (var project in latestProjects)
             {
                 <div class="col-lg-4 col-md-6">
-                    <div class="card card-custom h-100 d-flex flex-column border">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                    <div class="card card-custom h-100 d-flex flex-column">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge-soft-primary">
                                     <i class="bi @project.CategoryIcon me-1"></i> @project.CategoryName
                                 </span>
-                                <small class="text-muted"><i class="bi bi-geo-alt text-danger"></i> @project.City - @project.District</small>
+                                <span class="text-muted small d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-geo-alt text-danger"></i> @project.City
+                                </span>
                             </div>
+
                             <h5 class="fw-bold mb-2">
                                 <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="text-dark text-decoration-none">
                                     @project.Title
                                 </a>
                             </h5>
-                            <p class="text-muted small mb-3 flex-grow-1">@project.Description</p>
+
+                            <p class="text-secondary small mb-4 flex-grow-1" style="line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @project.Description
+                            </p>
                             
-                            <div class="bg-light p-2 rounded mb-3 small d-flex justify-content-between">
+                            <!-- Budget & Bids Stats Strip -->
+                            <div class="bg-light p-3 rounded-3 mb-3 small d-flex justify-content-between align-items-center border">
                                 <div>
-                                    <span class="text-muted">الميزانية التقديرية:</span>
-                                    <span class="fw-bold text-success d-block">
+                                    <span class="text-muted d-block small mb-1">الميزانية المقدرة:</span>
+                                    <span class="fw-bold text-success fs-6">
                                         @(project.ExpectedBudgetMin.HasValue ? $"{project.ExpectedBudgetMin:N0} - {project.ExpectedBudgetMax:N0} ر.س" : "حسب العروض")
                                     </span>
                                 </div>
                                 <div class="text-end">
-                                    <span class="text-muted">العروض المقدمة:</span>
-                                    <span class="fw-bold text-primary d-block">@project.BidsCount عروض</span>
+                                    <span class="text-muted d-block small mb-1">العروض المقدمة:</span>
+                                    <span class="badge bg-white text-primary border fw-bold px-2 py-1">
+                                        <i class="bi bi-chat-left-text me-1"></i> @project.BidsCount عروض
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-footer bg-white border-top-0 pt-0 pb-3">
-                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="btn btn-outline-primary w-100">
-                                عرض التفاصيل وتقديم عرض <i class="bi bi-arrow-left"></i>
+
+                        <div class="card-footer bg-transparent border-0 px-4 pb-4 pt-0">
+                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="btn btn-outline-custom w-100 d-flex align-items-center justify-content-center gap-2">
+                                <span>عرض تفاصيل المشروع وتقديم عرض</span>
+                                <i class="bi bi-arrow-left"></i>
                             </a>
                         </div>
                     </div>
@@ -176,14 +284,27 @@
         </div>
     }
 
-    <!-- Call to action banner -->
-    <div class="card bg-primary text-white p-5 rounded-4 shadow-sm text-center">
-        <h2 class="fw-bold mb-3">هل أنت مقاول أو صاحب منشأة صيانة؟</h2>
-        <p class="lead mb-4 mx-auto opacity-90" style="max-width: 650px;">انضم الآن إلى شبكة مقاولي بُنيان المعتمدة، واستقبل طلبات المشاريع المباشرة في منطقتك وتخصصك مع ضمان كامل لمستحقاتك المالية.</p>
-        <div>
-            <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-accent btn-lg px-5 fw-bold">
-                <i class="bi bi-check-circle me-1"></i> تسجيل منشأة جديدة مجاناً
-            </a>
+    <!-- High-Impact Call to Action Banner -->
+    <div class="card card-custom overflow-hidden text-white p-5 text-center position-relative my-5" style="background: linear-gradient(135deg, var(--brand-navy) 0%, #1c2541 100%); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(245, 158, 11, 0.15); filter: blur(60px); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -50px; right: -50px; width: 200px; height: 200px; background: rgba(16, 185, 129, 0.15); filter: blur(60px); border-radius: 50%;"></div>
+
+        <div class="position-relative z-1">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
+                <i class="bi bi-stars me-1"></i> ابدأ الآن كشريك نجاح
+            </span>
+            <h2 class="display-6 fw-extrabold mb-3">هل أنت صاحب منشأة مقاولات أو صيانة معتمدة؟</h2>
+            <p class="lead mb-4 mx-auto text-light opacity-90" style="max-width: 680px; font-size: 1.15rem;">
+                انضم الآن لشبكة مقاولي "بُنيان" واستقبل طلبات المشاريع المباشرة في منطقتك وتخصصك، مع توثيق رسمي لعقودك وحماية 100% لمستحقاتك المالية.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-accent btn-lg px-5 fw-bold shadow-gold">
+                    <i class="bi bi-check-circle-fill me-1"></i> تسجيل منشأة جديدة مجاناً
+                </a>
+                <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-light btn-lg px-4 fw-semibold" style="border-radius: 10px;">
+                    <i class="bi bi-briefcase me-1"></i> استكشاف المشاريع الحالية
+                </a>
+            </div>
         </div>
     </div>
 </div>
