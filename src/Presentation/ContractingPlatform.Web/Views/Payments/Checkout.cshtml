@@ -1,0 +1,274 @@
+@model ContractingPlatform.Application.DTOs.Payments.CheckoutInitiationDto
+@{
+    ViewData["Title"] = "بوابة الدفع الآمن وحساب الضمان المشترك";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <!-- Header Breadcrumb -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <a href="@Url.Action("Details", "Contracts", new { id = Model.ProjectContractId })" class="btn btn-outline-custom btn-sm py-1 px-3 d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-arrow-right"></i>
+                        <span>العودة للعقد</span>
+                    </a>
+                    <span class="text-muted small">| بوابة الدفع الإلكتروني المعتمدة</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 text-success small fw-bold">
+                    <i class="bi bi-shield-lock-fill fs-5"></i>
+                    <span>اتصال مشفر وآمن 256-bit SSL</span>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Payment Form Column -->
+                <div class="col-lg-7">
+                    <div class="card card-custom p-4 shadow-sm border">
+                        <h4 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-credit-card-2-front text-primary"></i>
+                            <span>بيانات السداد الإلكتروني</span>
+                        </h4>
+                        <p class="text-muted small mb-4">اختر وسيلة الدفع المناسبة لتأمين دفعة المرحلة وإيداعها في حساب الضمان البنكي.</p>
+
+                        <!-- Payment Method Tabs -->
+                        <div class="row g-2 mb-4" role="tablist">
+                            <div class="col-6 col-md-3">
+                                <label class="payment-method-card p-3 border rounded-3 text-center d-block cursor-pointer active" id="method-mada" onclick="selectPaymentMethod('Mada', this)">
+                                    <i class="bi bi-credit-card fs-3 text-success d-block mb-1"></i>
+                                    <strong class="small d-block text-dark">مدى</strong>
+                                    <small class="text-muted" style="font-size: 0.65rem;">البطاقات السعودية</small>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="payment-method-card p-3 border rounded-3 text-center d-block cursor-pointer" id="method-visa" onclick="selectPaymentMethod('CreditCard', this)">
+                                    <i class="bi bi-credit-card-fill fs-3 text-primary d-block mb-1"></i>
+                                    <strong class="small d-block text-dark">Visa / Master</strong>
+                                    <small class="text-muted" style="font-size: 0.65rem;">ائتمان دولي</small>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="payment-method-card p-3 border rounded-3 text-center d-block cursor-pointer" id="method-apple" onclick="selectPaymentMethod('ApplePay', this)">
+                                    <i class="bi bi-apple fs-3 text-dark d-block mb-1"></i>
+                                    <strong class="small d-block text-dark">Apple Pay</strong>
+                                    <small class="text-muted" style="font-size: 0.65rem;">سداد سريع</small>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="payment-method-card p-3 border rounded-3 text-center d-block cursor-pointer" id="method-sadad" onclick="selectPaymentMethod('BankTransfer', this)">
+                                    <i class="bi bi-bank fs-3 text-info d-block mb-1"></i>
+                                    <strong class="small d-block text-dark">سداد</strong>
+                                    <small class="text-muted" style="font-size: 0.65rem;">تحويل بنكي</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Card Visualizer -->
+                        <div class="p-4 rounded-4 text-white mb-4 position-relative overflow-hidden shadow" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <span class="badge bg-warning text-dark fw-bold px-3 py-1">بطاقة مدى البنكية</span>
+                                <i class="bi bi-wifi fs-4 text-secondary opacity-75"></i>
+                            </div>
+                            <div class="fs-4 fw-mono mb-4 text-center tracking-wide" id="cardDisplayNumber">
+                                &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;
+                            </div>
+                            <div class="d-flex justify-content-between align-items-end small">
+                                <div>
+                                    <span class="text-secondary d-block" style="font-size: 0.65rem;">اسم حامل البطاقة</span>
+                                    <strong id="cardDisplayHolder" class="text-light">@Model.ClientName</strong>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-secondary d-block" style="font-size: 0.65rem;">تاريخ الانتهاء</span>
+                                    <strong id="cardDisplayExpiry" class="text-light">MM/YY</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Demo Autofill Helper -->
+                        <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded-3 border">
+                            <span class="small text-muted"><i class="bi bi-info-circle me-1"></i> للتجربة السريعة:</span>
+                            <button type="button" class="btn btn-outline-custom btn-sm py-1 px-2" onclick="fillTestCard()">
+                                <i class="bi bi-magic me-1"></i> تعبئة بطاقة تجريبية معتمدة
+                            </button>
+                        </div>
+
+                        <!-- Payment Form -->
+                        <form asp-action="Process" method="post" id="checkoutForm">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="ProjectContractId" value="@Model.ProjectContractId" />
+                            <input type="hidden" name="MilestoneId" value="@Model.MilestoneId" />
+                            <input type="hidden" name="PaymentMethod" id="selectedPaymentMethod" value="Mada" />
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-dark">اسم حامل البطاقة (كما هو مدون عليها) *</label>
+                                <input type="text" name="CardHolderName" id="cardHolderInput" class="form-control" required value="@Model.ClientName" oninput="updateCardPreview()" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-dark">رقم البطاقة (16 رقماً) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-credit-card text-muted"></i></span>
+                                    <input type="text" name="CardNumber" id="cardNumberInput" class="form-control" required maxlength="19" placeholder="4000 0000 0000 0000" oninput="formatCardNumber(this)" />
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-dark">تاريخ الصلاحية *</label>
+                                    <div class="row g-1">
+                                        <div class="col-6">
+                                            <input type="text" name="ExpiryMonth" id="expiryMonthInput" class="form-control text-center" required maxlength="2" placeholder="MM" oninput="updateCardPreview()" />
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" name="ExpiryYear" id="expiryYearInput" class="form-control text-center" required maxlength="2" placeholder="YY" oninput="updateCardPreview()" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-dark">رمز الأمان (CVV) *</label>
+                                    <div class="input-group">
+                                        <input type="password" name="Cvv" id="cvvInput" class="form-control text-center" required maxlength="4" placeholder="123" />
+                                        <span class="input-group-text bg-white"><i class="bi bi-lock text-muted"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3D Secure Simulation Box -->
+                            <div class="p-3 mb-4 rounded-3 border bg-light bg-opacity-75">
+                                <div class="form-check d-flex align-items-center gap-2">
+                                    <input class="form-check-input mt-0" type="checkbox" id="otpCheckbox" checked>
+                                    <label class="form-check-label small text-muted cursor-pointer" for="otpCheckbox">
+                                        تفعيل التحقق الثنائي التلقائي الآمن (3D Secure SMS Code: <code>123456</code>)
+                                    </label>
+                                </div>
+                                <input type="hidden" name="OtpCode" value="123456" />
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                                <i class="bi bi-shield-check fs-5"></i>
+                                <span>تأمين الدفعة وإيداع المبلغ في الضمان (@Model.TotalAmount.ToString("N0") ر.س)</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Order Summary & Escrow Protection Column -->
+                <div class="col-lg-5">
+                    <!-- Escrow Summary Card -->
+                    <div class="card card-custom p-4 mb-4 shadow-sm border">
+                        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">تفاصيل الدفعة والضمان</h5>
+                        
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">المشروع</span>
+                            <strong class="text-dark d-block">@Model.ProjectTitle</strong>
+                            <small class="text-muted">عقد رقم #@Model.ProjectContractId</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">المرحلة التنفيذية المستهدفة</span>
+                            <div class="p-2 rounded-3 bg-light border">
+                                <strong class="text-primary d-block">@Model.MilestoneTitle</strong>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">المنشأة المنفذة (المقاول)</span>
+                            <strong class="text-dark">@Model.ContractorCompanyName</strong>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <!-- Breakdown -->
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-muted">قيمة أعمال المرحلة التعاقدية:</span>
+                            <strong class="text-dark">@Model.BaseAmount.ToString("N0") ر.س</strong>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-muted">رسوم خدمة الضمان والتحكيم (5%):</span>
+                            <span class="text-muted">@Model.PlatformFee.ToString("N0") ر.س <small class="badge bg-light text-secondary border">تُخصم لاحقاً من المقاول</small></span>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-3">
+                            <span class="text-muted">ضريبة القيمة المضافة (15% على العمولة):</span>
+                            <span class="text-muted">@Model.VatAmount.ToString("N2") ر.س</span>
+                        </div>
+
+                        <div class="p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong class="text-primary d-block">المبلغ المطلوب إيداعه بالضمان:</strong>
+                                <small class="text-muted">محفوظ في حساب وسيط</small>
+                            </div>
+                            <h3 class="fw-extrabold text-primary mb-0">
+                                @Model.TotalAmount.ToString("N0") <small class="fs-6 fw-normal">ر.س</small>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <!-- Escrow Guarantee Badge -->
+                    <div class="card card-custom p-4 border-success shadow-sm" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="rounded-circle p-2 bg-success text-white fs-4 flex-shrink-0">
+                                <i class="bi bi-shield-fill-check"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-success mb-1">حماية الضمان المالي 100%</h6>
+                                <p class="small text-muted mb-0 leading-relaxed">
+                                    @Model.EscrowProtectionNote
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function selectPaymentMethod(method, el) {
+        document.querySelectorAll('.payment-method-card').forEach(c => c.classList.remove('active', 'border-primary', 'bg-light'));
+        el.classList.add('active', 'border-primary', 'bg-light');
+        document.getElementById('selectedPaymentMethod').value = method;
+    }
+
+    function formatCardNumber(input) {
+        let val = input.value.replace(/\D/g, '');
+        let formatted = '';
+        for (let i = 0; i < val.length; i++) {
+            if (i > 0 && i % 4 === 0) formatted += ' ';
+            formatted += val[i];
+        }
+        input.value = formatted;
+        updateCardPreview();
+    }
+
+    function updateCardPreview() {
+        const num = document.getElementById('cardNumberInput').value.trim();
+        const holder = document.getElementById('cardHolderInput').value.trim();
+        const mm = document.getElementById('expiryMonthInput').value.trim();
+        const yy = document.getElementById('expiryYearInput').value.trim();
+
+        document.getElementById('cardDisplayNumber').textContent = num || "•••• •••• •••• ••••";
+        document.getElementById('cardDisplayHolder').textContent = holder || "اسم العميل";
+        document.getElementById('cardDisplayExpiry').textContent = (mm && yy) ? (mm + "/" + yy) : "MM/YY";
+    }
+
+    function fillTestCard() {
+        document.getElementById('cardNumberInput').value = "4000 1234 5678 9010";
+        document.getElementById('expiryMonthInput').value = "12";
+        document.getElementById('expiryYearInput').value = "28";
+        document.getElementById('cvvInput').value = "321";
+        updateCardPreview();
+    }
+</script>
+<style>
+    .payment-method-card.active {
+        border-color: #0f766e !important;
+        background-color: #f0fdfa !important;
+    }
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
+}

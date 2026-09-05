@@ -31,7 +31,7 @@ public class ContractService : IContractService
             .Include(c => c.ProjectRequest).ThenInclude(p => p.Category)
             .Include(c => c.Client).ThenInclude(cl => cl.User)
             .Include(c => c.Contractor).ThenInclude(co => co.User)
-            .Include(c => c.Milestones.OrderBy(m => m.OrderIndex))
+            .Include(c => c.Milestones.OrderBy(m => m.OrderIndex)).ThenInclude(m => m.Transaction)
             .Include(c => c.Review)
             .FirstOrDefaultAsync(c => c.Id == contractId && !c.IsDeleted);
 
@@ -90,7 +90,9 @@ public class ContractService : IContractService
                 CompletedAt = m.CompletedAt,
                 ContractorSubmissionNotes = m.ContractorSubmissionNotes,
                 ContractorProofAttachmentUrl = m.ContractorProofAttachmentUrl,
-                ClientApprovalNotes = m.ClientApprovalNotes
+                ClientApprovalNotes = m.ClientApprovalNotes,
+                TransactionReference = m.Transaction?.TransactionReference,
+                PaymentStatus = m.Transaction?.PaymentStatus
             }).ToList()
         };
 
@@ -236,22 +238,37 @@ public class ContractService : IContractService
             var platformFee = Math.Round(milestone.Amount * (commissionPercentage / 100m), 2);
             var netAmount = milestone.Amount - platformFee;
 
-            var paymentRecord = new PaymentTransaction
-            {
-                ProjectContractId = milestone.ProjectContractId,
-                MilestoneId = milestone.Id,
-                ClientProfileId = clientProfileId,
-                ContractorProfileId = milestone.Contract.ContractorProfileId,
-                Amount = milestone.Amount,
-                PlatformFee = platformFee,
-                NetAmount = netAmount,
-                PaymentStatus = PaymentStatus.ReleasedToContractor,
-                PaymentMethod = PaymentMethod.Mada,
-                TransactionReference = "ESCROW-REL-" + Guid.NewGuid().ToString("N").ToUpper(),
-                EscrowReleasedAt = DateTime.UtcNow
-            };
+            // Update existing Escrow transaction or create release transaction
+            var existingTx = await _context.PaymentTransactions
+                .FirstOrDefaultAsync(pt => pt.MilestoneId == milestone.Id);
 
-            await _context.PaymentTransactions.AddAsync(paymentRecord);
+            if (existingTx != null)
+            {
+                existingTx.PaymentStatus = PaymentStatus.ReleasedToContractor;
+                existingTx.EscrowReleasedAt = DateTime.UtcNow;
+                existingTx.PlatformFee = platformFee;
+                existingTx.NetAmount = netAmount;
+            }
+            else
+            {
+                var paymentRecord = new PaymentTransaction
+                {
+                    ProjectContractId = milestone.ProjectContractId,
+                    MilestoneId = milestone.Id,
+                    ClientProfileId = clientProfileId,
+                    ContractorProfileId = milestone.Contract.ContractorProfileId,
+                    Amount = milestone.Amount,
+                    PlatformFee = platformFee,
+                    NetAmount = netAmount,
+                    PaymentStatus = PaymentStatus.ReleasedToContractor,
+                    PaymentMethod = PaymentMethod.Mada,
+                    TransactionReference = "ESCROW-REL-" + Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper(),
+                    EscrowReleasedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.PaymentTransactions.AddAsync(paymentRecord);
+            }
 
             // Check if all milestones are paid -> mark contract & project as Completed!
             bool allCompleted = milestone.Contract.Milestones.All(m => m.Id == milestone.Id || m.Status == MilestoneStatus.Paid);

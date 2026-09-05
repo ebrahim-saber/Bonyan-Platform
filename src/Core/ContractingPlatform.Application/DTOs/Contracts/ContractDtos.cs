@@ -43,6 +43,8 @@ public class MilestoneItemDto
     public string? ContractorSubmissionNotes { get; set; }
     public string? ContractorProofAttachmentUrl { get; set; }
     public string? ClientApprovalNotes { get; set; }
+    public string? TransactionReference { get; set; }
+    public PaymentStatus? PaymentStatus { get; set; }
 }
 
 public class SubmitMilestoneProofDto

@@ -5,6 +5,7 @@ using ContractingPlatform.Application.DTOs.Contracts;
 using ContractingPlatform.Application.DTOs.Reviews;
 using ContractingPlatform.Application.DTOs.Notifications;
 using ContractingPlatform.Application.DTOs.Chat;
+using ContractingPlatform.Application.DTOs.Payments;
 using ContractingPlatform.Domain.Entities;
 using ContractingPlatform.Domain.Enums;
 
@@ -95,5 +96,14 @@ public interface IChatService
     Task<List<ChatConversationDto>> GetUserConversationsAsync(string currentUserId);
     Task<ApiResponse<bool>> MarkConversationAsReadAsync(int contractId, string currentUserId);
 }
+
+public interface IPaymentService
+{
+    Task<ApiResponse<CheckoutInitiationDto>> PrepareCheckoutAsync(int contractId, int? milestoneId, int clientProfileId);
+    Task<ApiResponse<PaymentReceiptDto>> ProcessPaymentAsync(ProcessPaymentDto dto, int clientProfileId);
+    Task<ApiResponse<PaymentReceiptDto>> GetReceiptAsync(string transactionReference, string userId, bool isAdmin);
+    Task<ContractFinancialSummaryDto> GetContractFinancialSummaryAsync(int contractId);
+}
+
 
 

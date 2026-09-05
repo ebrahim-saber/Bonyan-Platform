@@ -159,6 +159,12 @@
                                             _ => "مرحلة قادمة"
                                         })
                                     </span>
+                                    @if (m.PaymentStatus == ContractingPlatform.Domain.Enums.PaymentStatus.HeldInEscrow)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                            <i class="bi bi-shield-lock-fill me-1"></i> مؤمنة بالضمان
+                                        </span>
+                                    }
                                 </div>
 
                                 <p class="small text-secondary mb-3" style="line-height: 1.6;">@m.Description</p>
@@ -245,6 +251,14 @@
                                     }
 
                                     <!-- Client Action Button -->
+                                    @if (User.IsInRole("Client") && m.Status == MilestoneStatus.Pending)
+                                    {
+                                        <a href="@Url.Action("Checkout", "Payments", new { contractId = Model.Id, milestoneId = m.Id })" class="btn btn-primary-custom btn-sm fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-shield-lock-fill"></i>
+                                            <span>إيداع الدفعة في الضمان (تأمين المبلغ)</span>
+                                        </a>
+                                    }
+
                                     @if (User.IsInRole("Client") && m.Status == MilestoneStatus.SubmittedForReview)
                                     {
                                         <form asp-action="ApproveMilestone" method="post" onsubmit="return confirm('بالضغط على اعتماد، سيتم الإفراج فوراً عن مبلغ هذه الدفعة من حساب الضمان المشترك وتحويلها لحساب المقاول. هل تؤكد استلام الأعمال ومطابقتها للشروط؟');">
@@ -257,6 +271,16 @@
                                                 <span>اعتماد واستلام المرحلة (صرف الدفعة)</span>
                                             </button>
                                         </form>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(m.TransactionReference))
+                                    {
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("Receipt", "Payments", new { reference = m.TransactionReference })" class="btn btn-outline-custom btn-sm py-1 px-3 d-inline-flex align-items-center gap-1">
+                                                <i class="bi bi-receipt text-primary"></i>
+                                                <span>سند السداد والفاتورة</span>
+                                            </a>
+                                        </div>
                                     }
                                 </div>
                             </div>
