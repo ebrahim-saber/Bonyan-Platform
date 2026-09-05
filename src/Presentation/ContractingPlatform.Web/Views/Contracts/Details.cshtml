@@ -1,0 +1,169 @@
+@using ContractingPlatform.Domain.Enums
+@model ContractingPlatform.Application.DTOs.Contracts.ContractDetailsDto
+@{
+    ViewData["Title"] = $"العقد التنفيذي #{Model.Id} - {Model.ProjectTitle}";
+    int completedMilestonesCount = Model.Milestones.Count(m => m.Status == MilestoneStatus.Paid);
+    int totalMilestonesCount = Model.Milestones.Count;
+    int progressPercent = totalMilestonesCount > 0 ? (int)((double)completedMilestonesCount / totalMilestonesCount * 100) : 0;
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a asp-action="MyContracts">العقود</a></li>
+            <li class="breadcrumb-item active" aria-current="page">عقد #@Model.Id</li>
+        </ol>
+    </nav>
+
+    <!-- Header & Progress Card -->
+    <div class="card card-custom p-4 mb-4 border">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary fs-6">عقد رقم #@Model.Id</span>
+                    <span class="badge bg-success-subtle text-success">@Model.CategoryName</span>
+                    <span class="badge @(Model.Status == ProjectStatus.Completed ? "bg-success" : "bg-warning text-dark")">
+                        @(Model.Status == ProjectStatus.Completed ? "مشروع مكتمل" : "مشروع جاري التنفيذ")
+                    </span>
+                </div>
+                <h3 class="fw-bold mb-2">@Model.ProjectTitle</h3>
+                <div class="d-flex flex-wrap gap-4 text-muted small">
+                    <span><i class="bi bi-person me-1"></i> العميل: <strong>@Model.ClientName</strong> (@Model.ClientPhone)</span>
+                    <span><i class="bi bi-tools me-1"></i> المقاول: <strong>@Model.ContractorCompanyName</strong> (@Model.ContractorPhone)</span>
+                    <span><i class="bi bi-calendar3 me-1"></i> بدء التعاقد: @Model.StartDate.ToString("yyyy/MM/dd")</span>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="bg-light p-3 rounded text-center border">
+                    <span class="text-muted small d-block">إجمالي قيمة العقد</span>
+                    <h3 class="fw-bold text-primary mb-0">@Model.TotalAmount.ToString("N0") <small class="fs-6">ر.س</small></h3>
+                    <small class="text-muted">صافي المقاول: @Model.ContractorNetAmount.ToString("N0") ر.س</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="mt-4 pt-3 border-top">
+            <div class="d-flex justify-content-between small fw-bold mb-1">
+                <span>نسبة الإنجاز والدفعات المعتمدة</span>
+                <span class="text-primary">@progressPercent% (@completedMilestonesCount من @totalMilestonesCount مراحل)</span>
+            </div>
+            <div class="progress" style="height: 10px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: @progressPercent%;" aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Status == ProjectStatus.Completed && User.IsInRole("Client") && !Model.HasReview)
+    {
+        <div class="alert alert-success p-4 rounded-3 d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h5 class="fw-bold mb-1"><i class="bi bi-trophy-fill text-warning me-2"></i>تهانينا! اكتمل المشروع بنجاح</h5>
+                <p class="mb-0 small">يسعدنا مشاركة رأيك وتقييمك لأداء المقاول لمساعدة المجتمع وبناء سجل الأعمال.</p>
+            </div>
+            <a asp-controller="Reviews" asp-action="Create" asp-route-contractId="@Model.Id" class="btn btn-warning fw-bold px-4">
+                <i class="bi bi-star me-1"></i> تقييم المقاول الآن
+            </a>
+        </div>
+    }
+
+    <!-- Milestones Execution & Escrow Timeline -->
+    <div class="card card-custom p-4 border">
+        <h4 class="fw-bold mb-4"><i class="bi bi-check2-square text-success me-2"></i>مراحل التنفيذ وجدول الدفعات المحمية (Escrow)</h4>
+
+        <div class="d-flex flex-column gap-4">
+            @foreach (var m in Model.Milestones)
+            {
+                <div class="card border p-3 rounded-3 @(m.Status == MilestoneStatus.Paid ? "border-success bg-success bg-opacity-10" : m.Status == MilestoneStatus.SubmittedForReview ? "border-warning bg-warning bg-opacity-10" : "")">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-7">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-secondary">المرحلة @m.OrderIndex</span>
+                                <h5 class="fw-bold mb-0">@m.Title</h5>
+                                <span class="badge @(m.Status == MilestoneStatus.Paid ? "bg-success" : m.Status == MilestoneStatus.SubmittedForReview ? "bg-warning text-dark" : m.Status == MilestoneStatus.InProgress ? "bg-primary" : "bg-secondary")">
+                                    @(m.Status switch {
+                                        MilestoneStatus.Paid => "مكتملة ومصروفة الدفعة",
+                                        MilestoneStatus.SubmittedForReview => "تم التسليم وبانتظار اعتماد العميل",
+                                        MilestoneStatus.InProgress => "قيد العمل الميداني",
+                                        _ => "مرحلة قادمة"
+                                    })
+                                </span>
+                            </div>
+                            <p class="small text-muted mb-2">@m.Description</p>
+
+                            @if (!string.IsNullOrEmpty(m.ContractorSubmissionNotes))
+                            {
+                                <div class="bg-white p-2 rounded small border mb-2">
+                                    <strong class="text-primary">إفادة المقاول عند التسليم:</strong> @m.ContractorSubmissionNotes
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(m.ClientApprovalNotes))
+                            {
+                                <div class="bg-white p-2 rounded small border">
+                                    <strong class="text-success">ملاحظات العميل عند الاعتماد:</strong> @m.ClientApprovalNotes
+                                </div>
+                            }
+                        </div>
+
+                        <div class="col-md-5 text-md-end">
+                            <div class="fs-5 fw-bold text-dark mb-2">
+                                @m.Amount.ToString("N0") <span class="fs-6 text-muted">ر.س</span>
+                            </div>
+
+                            <!-- Contractor Actions -->
+                            @if (User.IsInRole("Contractor") && m.Status == MilestoneStatus.InProgress)
+                            {
+                                <button type="button" class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#submitMilestoneModal_@m.Id">
+                                    <i class="bi bi-upload me-1"></i> تسليم إنجاز المرحلة للعميل
+                                </button>
+
+                                <!-- Submit Modal -->
+                                <div class="modal fade text-start" id="submitMilestoneModal_@m.Id" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form asp-action="SubmitMilestone" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="MilestoneId" value="@m.Id" />
+                                                <input type="hidden" name="contractId" value="@Model.Id" />
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title fw-bold">تسليم إنجاز: @m.Title</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold">ملاحظات الإنجاز للعميل</label>
+                                                        <textarea name="Notes" rows="4" class="form-control" placeholder="اشرح ما تم إنجازه بدقة، وأي فحوصات أو اختبارات تمت بنجاح..." required></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                                    <button type="submit" class="btn btn-primary-custom">إرسال للعميل للاعتماد</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Client Actions -->
+                            @if (User.IsInRole("Client") && m.Status == MilestoneStatus.SubmittedForReview)
+                            {
+                                <form asp-action="ApproveMilestone" method="post" onsubmit="return confirm('بالضغط على اعتماد، سيتم الإفراج عن مبلغ هذه الدفعة من الضمان لحساب المقاول. هل تؤكد استلام الأعمال ومطابقتها؟');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="milestoneId" value="@m.Id" />
+                                    <input type="hidden" name="contractId" value="@Model.Id" />
+                                    <input type="hidden" name="notes" value="تمت المعاينة والاعتماد بنجاح" />
+                                    <button type="submit" class="btn btn-success btn-sm fw-bold">
+                                        <i class="bi bi-shield-check me-1"></i> اعتماد وإفراج عن الدفعة
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

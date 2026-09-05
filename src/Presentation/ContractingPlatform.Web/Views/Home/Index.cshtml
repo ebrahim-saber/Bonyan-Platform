@@ -1,0 +1,189 @@
+@using ContractingPlatform.Domain.Entities
+@using ContractingPlatform.Application.DTOs.Projects
+@{
+    ViewData["Title"] = "الرئيسية - بوابتك الذكية لخدمات المقاولات والتشطيب";
+    var categories = ViewBag.Categories as List<Category> ?? new();
+    var latestProjects = ViewBag.LatestProjects as List<ProjectCardDto> ?? new();
+}
+
+<!-- Hero Banner -->
+<div class="hero-banner">
+    <div class="container text-center py-4">
+        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
+            <i class="bi bi-shield-check me-1"></i> أول منصة مقاولات بنظام الدفعات المجمدة والضمان المالي
+        </span>
+        <h1 class="display-4 fw-extrabold mb-3">ابنِ، شطّب، ونفّذ مشاريعك بثقة تامة</h1>
+        <p class="lead mb-4 mx-auto text-light opacity-90" style="max-width: 700px;">
+            اربط مشروعك مع نخبة المقاولين والمنشآت المعتمدة بالسجل التجاري، قارن عروض الأسعار، وأدر دفعاتك ومراحل التنفيذ من شاشة واحدة بكل أمان.
+        </p>
+
+        <!-- Quick Search Bar -->
+        <div class="card p-2 shadow-lg mx-auto" style="max-width: 850px; border-radius: 16px;">
+            <form asp-controller="Projects" asp-action="Index" method="get" class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-0"><i class="bi bi-geo-alt text-danger"></i></span>
+                        <input type="text" name="city" class="form-control border-0 shadow-none" placeholder="المدينة (الرياض، جدة، الدمام...)">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-0"><i class="bi bi-grid text-primary"></i></span>
+                        <select name="categoryId" class="form-select border-0 shadow-none">
+                            <option value="">جميع قطاعات المقاولات والخدمات</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id">@cat.NameAr</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2">
+                        <i class="bi bi-search me-1"></i> بحث
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a asp-controller="Projects" asp-action="Create" class="btn btn-accent px-4 py-2">
+                <i class="bi bi-plus-circle me-1"></i> أعلن عن مشروعك مجاناً
+            </a>
+            <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-outline-light px-4 py-2">
+                <i class="bi bi-tools me-1"></i> سجل كشريك مقاول
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- How It Works Section -->
+    <div class="text-center mb-5">
+        <h6 class="text-primary fw-bold text-uppercase">خطوات بسيطة ومضمونة</h6>
+        <h2 class="fw-bold">كيف تعمل منصة بُنيان لحمايتك؟</h2>
+    </div>
+
+    <div class="row g-4 text-center mb-5">
+        <div class="col-md-4">
+            <div class="card card-custom p-4 h-100">
+                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                    <i class="bi bi-pencil-square fs-2"></i>
+                </div>
+                <h5 class="fw-bold">1. اطرح متطلبات مشروعك</h5>
+                <p class="text-muted small">حدد الموقع، المواصفات، المخططات، والميزانية المتوقعة بكل سهولة وفي دقائق معدودة.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-custom p-4 h-100">
+                <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                    <i class="bi bi-card-checklist fs-2"></i>
+                </div>
+                <h5 class="fw-bold">2. استقبل وقارن العروض</h5>
+                <p class="text-muted small">تلقَّ عروض أسعار تفصيلية من مقاولين معتمدين، تصفح سابقة أعمالهم وتقييمات العملاء السابقة.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-custom p-4 h-100">
+                <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                    <i class="bi bi-shield-lock fs-2"></i>
+                </div>
+                <h5 class="fw-bold">3. تعاقد ودفعات مجمدة (Escrow)</h5>
+                <p class="text-muted small">عقد إلكتروني يحدد المراحل، وتجميد الدفعة في المنصة ولا يتم صرفها للمقاول إلا بعد موافقتك على الإنجاز.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h6 class="text-primary fw-bold">القطاعات والتخصصات</h6>
+            <h3 class="fw-bold mb-0">تصفح حسب مجال الخدمة</h3>
+        </div>
+        <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-primary btn-sm">عرض كل المشاريع <i class="bi bi-arrow-left"></i></a>
+    </div>
+
+    <div class="row g-3 mb-5">
+        @foreach (var cat in categories)
+        {
+            <div class="col-lg-4 col-md-6">
+                <a asp-controller="Projects" asp-action="Index" asp-route-categoryId="@cat.Id" class="text-decoration-none">
+                    <div class="card card-custom p-3 h-100 d-flex flex-row align-items-center gap-3 border">
+                        <div class="rounded p-3 bg-light text-primary fs-3">
+                            <i class="bi @(cat.IconCss ?? "bi-building")"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">@cat.NameAr</h5>
+                            <p class="text-muted small mb-0">@(cat.DescriptionAr?.Length > 60 ? cat.DescriptionAr.Substring(0, 60) + "..." : cat.DescriptionAr)</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Latest Open Projects -->
+    @if (latestProjects.Any())
+    {
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h6 class="text-warning fw-bold">فرص عمل متاحة للمقاولين</h6>
+                <h3 class="fw-bold mb-0">أحدث المشاريع المطروحة للعروض</h3>
+            </div>
+            <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-dark btn-sm">تصفح كافة المشاريع <i class="bi bi-arrow-left"></i></a>
+        </div>
+
+        <div class="row g-4 mb-5">
+            @foreach (var project in latestProjects)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="card card-custom h-100 d-flex flex-column border">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                    <i class="bi @project.CategoryIcon me-1"></i> @project.CategoryName
+                                </span>
+                                <small class="text-muted"><i class="bi bi-geo-alt text-danger"></i> @project.City - @project.District</small>
+                            </div>
+                            <h5 class="fw-bold mb-2">
+                                <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="text-dark text-decoration-none">
+                                    @project.Title
+                                </a>
+                            </h5>
+                            <p class="text-muted small mb-3 flex-grow-1">@project.Description</p>
+                            
+                            <div class="bg-light p-2 rounded mb-3 small d-flex justify-content-between">
+                                <div>
+                                    <span class="text-muted">الميزانية التقديرية:</span>
+                                    <span class="fw-bold text-success d-block">
+                                        @(project.ExpectedBudgetMin.HasValue ? $"{project.ExpectedBudgetMin:N0} - {project.ExpectedBudgetMax:N0} ر.س" : "حسب العروض")
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-muted">العروض المقدمة:</span>
+                                    <span class="fw-bold text-primary d-block">@project.BidsCount عروض</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="btn btn-outline-primary w-100">
+                                عرض التفاصيل وتقديم عرض <i class="bi bi-arrow-left"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Call to action banner -->
+    <div class="card bg-primary text-white p-5 rounded-4 shadow-sm text-center">
+        <h2 class="fw-bold mb-3">هل أنت مقاول أو صاحب منشأة صيانة؟</h2>
+        <p class="lead mb-4 mx-auto opacity-90" style="max-width: 650px;">انضم الآن إلى شبكة مقاولي بُنيان المعتمدة، واستقبل طلبات المشاريع المباشرة في منطقتك وتخصصك مع ضمان كامل لمستحقاتك المالية.</p>
+        <div>
+            <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-accent btn-lg px-5 fw-bold">
+                <i class="bi bi-check-circle me-1"></i> تسجيل منشأة جديدة مجاناً
+            </a>
+        </div>
+    </div>
+</div>

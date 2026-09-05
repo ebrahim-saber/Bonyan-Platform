@@ -1,0 +1,90 @@
+@using ContractingPlatform.Domain.Entities
+@model ContractingPlatform.Application.DTOs.Projects.CreateProjectDto
+@{
+    ViewData["Title"] = "طرح مشروع جديد - طلب عروض أسعار";
+    var categories = ViewBag.Categories as List<Category> ?? new();
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-custom p-4 p-md-5 border">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center p-3 mb-2">
+                        <i class="bi bi-pencil-square fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold">طرح مشروع جديد واستقبال عروض الأسعار</h3>
+                    <p class="text-muted small">اشرح احتياجك بالتفصيل ليصل طلبك إلى أفضل المقاولين والمنشآت المتخصصة في منطقتك</p>
+                </div>
+
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-bold small">عنوان المشروع</label>
+                        <input asp-for="Title" class="form-control" placeholder="مثال: تشطيب فيلا دورين وملحق بالكامل مع المواد" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold small">تصنيف مجال المقاولات أو الصيانة</label>
+                        <select asp-for="CategoryId" class="form-select" required>
+                            <option value="">-- اختر التصنيف المناسب --</option>
+                            @foreach (var c in categories)
+                            {
+                                <option value="@c.Id">@c.NameAr</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-bold small">وصف متطلبات المشروع ومواصفات التنفيذ</label>
+                        <textarea asp-for="Description" rows="5" class="form-control" placeholder="اكتب تفاصيل الأعمال بدقة: المساحة بالمتر المربع، نوعية التشطيبات (ديلوكس، سوبر ديلوكس)، هل المواد مشمولة، وأي شروط خاصة ترغب بها..." required></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="City" class="form-label fw-bold small">المدينة</label>
+                            <input asp-for="City" class="form-control" placeholder="الرياض" required />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="District" class="form-label fw-bold small">الحي السكني</label>
+                            <input asp-for="District" class="form-control" placeholder="حي الملقا" required />
+                            <span asp-validation-for="District" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DetailedAddress" class="form-label fw-bold small">تفاصيل العنوان أو اسم المخطط (اختياري)</label>
+                        <input asp-for="DetailedAddress" class="form-control" placeholder="شارع الأمير تركي بن عبدالعزيز الأول، فيلا رقم..." />
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="ExpectedBudgetMin" class="form-label fw-bold small">الحد الأدنى للميزانية المتوقعة (ر.س)</label>
+                            <input asp-for="ExpectedBudgetMin" type="number" step="100" class="form-control" placeholder="مثال: 50000" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ExpectedBudgetMax" class="form-label fw-bold small">الحد الأقصى للميزانية المتوقعة (ر.س)</label>
+                            <input asp-for="ExpectedBudgetMax" type="number" step="100" class="form-control" placeholder="مثال: 80000" />
+                            <span asp-validation-for="ExpectedBudgetMax" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="DesiredExecutionDate" class="form-label fw-bold small">التاريخ المفضل لبدء الأعمال</label>
+                        <input asp-for="DesiredExecutionDate" type="date" class="form-control" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold fs-5">
+                        <i class="bi bi-send me-1"></i> نشر المشروع وبدء استقبال العروض
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

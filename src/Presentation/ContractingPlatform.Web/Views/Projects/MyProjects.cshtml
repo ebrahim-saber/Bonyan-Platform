@@ -1,0 +1,81 @@
+@using ContractingPlatform.Domain.Enums
+@using ContractingPlatform.Application.DTOs.Projects
+@model List<ProjectCardDto>
+@{
+    ViewData["Title"] = "مشاريعي المطروحة";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-folder-check text-primary me-2"></i>مشاريعي المطروحة</h3>
+            <p class="text-muted small mb-0">تابع حالة طلباتك وعروض الأسعار المقدمة من المقاولين</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary-custom">
+            <i class="bi bi-plus-circle me-1"></i> طرح مشروع جديد
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card card-custom p-5 text-center">
+            <i class="bi bi-clipboard-x text-muted display-3 mb-3"></i>
+            <h4 class="fw-bold">لم تقم بطرح أي مشروع حتى الآن</h4>
+            <p class="text-muted small mb-4">انشر احتياجك الآن واستقبل عروضاً احترافية من مقاولين معتمدين.</p>
+            <div>
+                <a asp-action="Create" class="btn btn-primary-custom px-4">طرح أول مشروع</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive bg-white rounded-3 shadow-sm border">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="py-3 px-4">المشروع</th>
+                        <th>التصنيف</th>
+                        <th>المدينة</th>
+                        <th>العروض المقدمة</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الطرح</th>
+                        <th class="text-end px-4">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="px-4 fw-bold">
+                                <a asp-action="Details" asp-route-id="@p.Id" class="text-dark text-decoration-none">
+                                    @p.Title
+                                </a>
+                            </td>
+                            <td><span class="badge bg-light text-dark"><i class="bi @p.CategoryIcon me-1"></i>@p.CategoryName</span></td>
+                            <td>@p.City - @p.District</td>
+                            <td>
+                                <span class="badge bg-primary fs-6">@p.BidsCount عروض</span>
+                            </td>
+                            <td>
+                                <span class="badge @(p.Status == ProjectStatus.OpenForBids ? "bg-success" : p.Status == ProjectStatus.InProgress ? "bg-warning text-dark" : "bg-secondary")">
+                                    @(p.Status switch {
+                                        ProjectStatus.OpenForBids => "مفتوح للعروض",
+                                        ProjectStatus.InProgress => "قيد التنفيذ",
+                                        ProjectStatus.Completed => "مكتمل",
+                                        _ => p.Status.ToString()
+                                    })
+                                </span>
+                            </td>
+                            <td>@p.CreatedAt.ToString("yyyy/MM/dd")</td>
+                            <td class="text-end px-4">
+                                <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-primary btn-sm">
+                                    استعراض العروض <i class="bi bi-arrow-left"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

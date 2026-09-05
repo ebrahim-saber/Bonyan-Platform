@@ -1,0 +1,117 @@
+@using ContractingPlatform.Domain.Entities
+@model ContractingPlatform.Application.DTOs.Auth.RegisterContractorDto
+@{
+    ViewData["Title"] = "تسجيل منشأة مقاولات أو صيانة";
+    var categories = ViewBag.Categories as List<Category> ?? new();
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-custom p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center p-3 mb-2">
+                        <i class="bi bi-tools fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold">انضم كشريك مقاول أو فني معتمد</h3>
+                    <p class="text-muted small">استقبل طلبات المشاريع المباشرة، وقدم عروضك مع ضمان تحصيل مستحقاتك عبر نظام الدفعات المحمية</p>
+                </div>
+
+                <form asp-action="RegisterContractor" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+                    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-building me-1"></i> بيانات المنشأة المهنية</h5>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="CompanyName" class="form-label fw-bold small">اسم الشركة / المؤسسة / المكتب</label>
+                            <input asp-for="CompanyName" class="form-control" placeholder="مثال: شركة إعمار للمقاولات العامة" required />
+                            <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CommercialRegistrationNo" class="form-label fw-bold small">رقم السجل التجاري (CR)</label>
+                            <input asp-for="CommercialRegistrationNo" class="form-control" placeholder="1010XXXXXX" required />
+                            <span asp-validation-for="CommercialRegistrationNo" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="TaxNumber" class="form-label fw-bold small">الرقم الضريبي (اختياري)</label>
+                            <input asp-for="TaxNumber" class="form-control" placeholder="300XXXXXXXXXXXX" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="YearsOfExperience" class="form-label fw-bold small">سنوات الخبرة في المجال</label>
+                            <input asp-for="YearsOfExperience" type="number" min="0" class="form-control" placeholder="مثال: 8" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Bio" class="form-label fw-bold small">نبذة عن المنشأة وسابقة الأعمال</label>
+                        <textarea asp-for="Bio" rows="3" class="form-control" placeholder="اذكر أهم المشاريع المنجزة ونوعية الخدمات والضمانات التي تقدمها لعملائك..." required></textarea>
+                        <span asp-validation-for="Bio" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label asp-for="City" class="form-label fw-bold small">المقر الرئيسي (المدينة)</label>
+                            <input asp-for="City" class="form-control" placeholder="الرياض" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="District" class="form-label fw-bold small">الحي</label>
+                            <input asp-for="District" class="form-control" placeholder="حي الياسمين" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="CoverageCities" class="form-label fw-bold small">نطاق التغطية الجغرافي</label>
+                            <input asp-for="CoverageCities" class="form-control" placeholder="الرياض، الخرج، الدرعية..." />
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-person-badge me-1"></i> بيانات المدير المفوض والمصادقة</h5>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-bold small">اسم الشخص المفوض / المدير</label>
+                            <input asp-for="FullName" class="form-control" placeholder="م. فهد القحطاني" required />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold small">رقم الجوال للتواصل والإشعارات</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="05XXXXXXXX" required />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-bold small">البريد الإلكتروني للعمل</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="contact@company.com" required />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label fw-bold small">كلمة المرور</label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" required />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword" class="form-label fw-bold small">تأكيد كلمة المرور</label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="••••••••" required />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-accent w-100 py-3 fw-bold fs-5">
+                        <i class="bi bi-shield-check me-1"></i> إرسال طلب الانضمام كمنشأة معتمدة
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">لديك حساب مسجل بالفعل؟</span>
+                    <a asp-action="Login" class="fw-bold small text-primary text-decoration-none">تسجيل الدخول</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

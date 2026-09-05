@@ -1,0 +1,93 @@
+@using ContractingPlatform.Application.DTOs.Projects
+@model ContractingPlatform.Application.DTOs.Bids.CreateBidDto
+@{
+    ViewData["Title"] = "تقديم عرض سعر";
+    var project = ViewBag.Project as ProjectDetailsDto;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Project summary card -->
+            @if (project != null)
+            {
+                <div class="card card-custom p-4 mb-4 border border-primary-subtle bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-primary text-white"><i class="bi @project.CategoryIcon me-1"></i> @project.CategoryName</span>
+                        <small class="text-muted"><i class="bi bi-geo-alt text-danger"></i> @project.City - @project.District</small>
+                    </div>
+                    <h4 class="fw-bold mb-2">@project.Title</h4>
+                    <p class="text-muted small mb-0">@project.Description</p>
+                </div>
+            }
+
+            <div class="card card-custom p-4 p-md-5 border">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center p-3 mb-2">
+                        <i class="bi bi-tag fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold">تقديم عرض سعر فني ومالي</h3>
+                    <p class="text-muted small">حدد السعر الإجمالي، مدة الإنجاز، وتفاصيل خطة العمل المقترحة</p>
+                </div>
+
+                <form asp-action="Submit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ProjectRequestId" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="ProposedPrice" class="form-label fw-bold small">السعر الإجمالي المقترح (ر.س)</label>
+                            <div class="input-group">
+                                <input asp-for="ProposedPrice" type="number" step="100" class="form-control" placeholder="مثال: 45000" required />
+                                <span class="input-group-text">ر.س</span>
+                            </div>
+                            <span asp-validation-for="ProposedPrice" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DurationDays" class="form-label fw-bold small">مدة التنفيذ المقترحة (بالأيام)</label>
+                            <div class="input-group">
+                                <input asp-for="DurationDays" type="number" min="1" class="form-control" placeholder="مثال: 30" required />
+                                <span class="input-group-text">يوم</span>
+                            </div>
+                            <span asp-validation-for="DurationDays" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="MaterialCost" class="form-label fw-bold small">تكلفة توريد المواد (اختياري)</label>
+                            <input asp-for="MaterialCost" type="number" step="100" class="form-control" placeholder="مثال: 25000" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LaborCost" class="form-label fw-bold small">تكلفة أجور الأيدي العاملة والمعدات (اختياري)</label>
+                            <input asp-for="LaborCost" type="number" step="100" class="form-control" placeholder="مثال: 20000" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Notes" class="form-label fw-bold small">خطاب العرض وتفاصيل خطة العمل والضمانات</label>
+                        <textarea asp-for="Notes" rows="5" class="form-control" placeholder="اشرح للعميل خبرتك في تنفيذ أعمال مماثلة، المواد المستخدمة، مدة الضمان، وكيفية توزيع الدفعات..." required></textarea>
+                        <span asp-validation-for="Notes" class="text-danger small"></span>
+                    </div>
+
+                    <div class="alert alert-info small d-flex align-items-center gap-2 mb-4">
+                        <i class="bi bi-info-circle fs-5"></i>
+                        <div>
+                            تطبق المنصة عمولة نجاح قدرها <strong>5% فقط</strong> تُخصم تلقائياً عند تحويل الدفعات إلى حسابك بعد اعتماد العميل لكل مرحلة.
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-accent flex-grow-1 py-3 fw-bold fs-5">
+                            <i class="bi bi-send me-1"></i> إرسال العرض المالي والفني للعميل
+                        </button>
+                        <a asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectRequestId" class="btn btn-outline-secondary px-4 py-3">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

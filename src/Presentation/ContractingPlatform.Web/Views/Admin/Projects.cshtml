@@ -1,0 +1,65 @@
+@using ContractingPlatform.Domain.Entities
+@using ContractingPlatform.Domain.Enums
+@model List<ProjectRequest>
+@{
+    ViewData["Title"] = "مراقبة كافة المشاريع";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-kanban text-primary me-2"></i>مراقبة كافة المشاريع المطروحة</h3>
+            <p class="text-muted small mb-0">استعراض كافة طلبات المشاريع المنشورة على المنصة وحالاتها</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">العودة للوحة التحكم</a>
+    </div>
+
+    <div class="table-responsive bg-white rounded-3 shadow-sm border">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="py-3 px-4">رقم المشروع</th>
+                    <th>عنوان المشروع</th>
+                    <th>التصنيف</th>
+                    <th>العميل</th>
+                    <th>المدينة</th>
+                    <th>العروض</th>
+                    <th>الحالة</th>
+                    <th class="text-end px-4">الإجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td class="px-4 fw-bold">#@p.Id</td>
+                        <td>
+                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@p.Id" class="text-dark fw-bold text-decoration-none">
+                                @p.Title
+                            </a>
+                        </td>
+                        <td><span class="badge bg-light text-dark">@p.Category.NameAr</span></td>
+                        <td>@p.Client.User.FullName</td>
+                        <td>@p.City - @p.District</td>
+                        <td><span class="badge bg-primary">@p.Bids.Count</span></td>
+                        <td>
+                            <span class="badge @(p.Status == ProjectStatus.OpenForBids ? "bg-success" : p.Status == ProjectStatus.InProgress ? "bg-warning text-dark" : "bg-secondary")">
+                                @(p.Status switch {
+                                    ProjectStatus.OpenForBids => "مفتوح للعروض",
+                                    ProjectStatus.InProgress => "قيد التنفيذ",
+                                    ProjectStatus.Completed => "مكتمل",
+                                    _ => p.Status.ToString()
+                                })
+                            </span>
+                        </td>
+                        <td class="text-end px-4">
+                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-primary btn-sm">
+                                معاينة المشروع <i class="bi bi-arrow-left"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

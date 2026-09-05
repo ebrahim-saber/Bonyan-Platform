@@ -1,0 +1,86 @@
+@model ContractingPlatform.Application.DTOs.Auth.LoginDto
+@{
+    ViewData["Title"] = "تسجيل الدخول";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card card-custom p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center p-3 mb-2">
+                        <i class="bi bi-box-arrow-in-right fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold">تسجيل الدخول</h3>
+                    <p class="text-muted small">أهلاً بك مجدداً في منصة بُنيان</p>
+                </div>
+
+                <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-bold small">البريد الإلكتروني</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="name@example.com" id="loginEmail" required />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-bold small">كلمة المرور</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" id="loginPassword" required />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" id="rememberMe" />
+                            <label class="form-check-label small" for="rememberMe">تذكرني</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2 mb-3">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> دخول
+                    </button>
+                </form>
+
+                <!-- Quick Test Credentials Box -->
+                <div class="bg-light p-3 rounded-3 mt-3 border">
+                    <div class="small fw-bold text-muted mb-2"><i class="bi bi-info-circle me-1"></i> تجربة سريعة (بيانات تجريبية):</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillLogin('client@home.com', 'Client@123456')">
+                            <i class="bi bi-person me-1"></i> حساب عميل
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillLogin('contractor@builder.com', 'Contractor@123456')">
+                            <i class="bi bi-tools me-1"></i> حساب مقاول
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="fillLogin('admin@contracting.com', 'Admin@123456')">
+                            <i class="bi bi-shield-lock me-1"></i> مدير النظام
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">ليس لديك حساب؟</span>
+                    <a asp-action="RegisterClient" class="fw-bold small text-primary text-decoration-none">تسجيل عميل</a>
+                    <span class="text-muted small">أو</span>
+                    <a asp-action="RegisterContractor" class="fw-bold small text-warning text-decoration-none">تسجيل مقاول</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function fillLogin(email, pwd) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = pwd;
+        }
+    </script>
+}

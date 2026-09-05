@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/ContractingPlatform.Application/ContractingPlatform.Application.csproj" />
+    <Project Path="src/Core/ContractingPlatform.Domain/ContractingPlatform.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="src/Infrastructure/ContractingPlatform.Infrastructure/ContractingPlatform.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Presentation/">
+    <Project Path="src/Presentation/ContractingPlatform.Web/ContractingPlatform.Web.csproj" />
+  </Folder>
+</Solution>

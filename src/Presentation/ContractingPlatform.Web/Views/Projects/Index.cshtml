@@ -1,0 +1,120 @@
+@using ContractingPlatform.Domain.Entities
+@using ContractingPlatform.Application.DTOs.Projects
+@model List<ProjectCardDto>
+@{
+    ViewData["Title"] = "تصفح مشاريع المقاولات والتشطيب المتاحة";
+    var categories = ViewBag.Categories as List<Category> ?? new();
+    int? selectedCategory = ViewBag.SelectedCategory as int?;
+    string? selectedCity = ViewBag.SelectedCity as string;
+}
+
+<div class="container py-4">
+    <!-- Header & Search Filter Card -->
+    <div class="card card-custom p-4 mb-4 border">
+        <div class="row align-items-center mb-3">
+            <div class="col-md-8">
+                <h3 class="fw-bold mb-1"><i class="bi bi-briefcase text-primary me-2"></i>فرص المشاريع المفتوحة للعروض</h3>
+                <p class="text-muted small mb-0">استعرض متطلبات العملاء وقدم عروض أسعارك التنافسية مباشرة</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                @if (User.IsInRole("Client"))
+                {
+                    <a asp-action="Create" class="btn btn-primary-custom">
+                        <i class="bi bi-plus-circle me-1"></i> طرح مشروع جديد
+                    </a>
+                }
+            </div>
+        </div>
+
+        <form method="get" asp-action="Index" class="row g-3">
+            <div class="col-md-5">
+                <label class="form-label small fw-bold">تصنيف المقاولات</label>
+                <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                    <option value="">جميع القطاعات والخدمات</option>
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Id" selected="@(selectedCategory == c.Id)">@c.NameAr</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label small fw-bold">المدينة</label>
+                <div class="input-group">
+                    <input type="text" name="city" value="@selectedCity" class="form-control" placeholder="اكتب اسم المدينة (مثال: الرياض)..." />
+                    <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i> تصفية</button>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <a asp-action="Index" class="btn btn-outline-danger w-100"><i class="bi bi-arrow-clockwise me-1"></i> إعادة ضبط</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Projects List -->
+    @if (!Model.Any())
+    {
+        <div class="card card-custom p-5 text-center my-4">
+            <i class="bi bi-inbox text-muted display-3 mb-3"></i>
+            <h4 class="fw-bold">لا توجد مشاريع مطابقة لخيارات البحث حالياً</h4>
+            <p class="text-muted small">جرب تغيير المدينة أو اختيار تصنيف آخر، أو قم بطرح مشروعك الآن ليصل لمئات المقاولين.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var p in Model)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="card card-custom h-100 d-flex flex-column border">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                    <i class="bi @p.CategoryIcon me-1"></i> @p.CategoryName
+                                </span>
+                                <span class="badge bg-success-subtle text-success">متاح للعروض</span>
+                            </div>
+
+                            <h5 class="fw-bold mb-2">
+                                <a asp-action="Details" asp-route-id="@p.Id" class="text-dark text-decoration-none">
+                                    @p.Title
+                                </a>
+                            </h5>
+
+                            <p class="text-muted small mb-3 flex-grow-1">@p.Description</p>
+
+                            <div class="text-muted small mb-3">
+                                <div class="d-flex align-items-center gap-1 mb-1">
+                                    <i class="bi bi-geo-alt text-danger"></i>
+                                    <span>@p.City - @p.District</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <i class="bi bi-person text-secondary"></i>
+                                    <span>صاحب المشروع: @p.ClientName</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-light p-2 rounded small d-flex justify-content-between mb-3">
+                                <div>
+                                    <span class="text-muted d-block">الميزانية المتوقعة:</span>
+                                    <span class="fw-bold text-success">
+                                        @(p.ExpectedBudgetMin.HasValue ? $"{p.ExpectedBudgetMin:N0} - {p.ExpectedBudgetMax:N0} ر.س" : "حسب العروض")
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-muted d-block">العروض:</span>
+                                    <span class="fw-bold text-primary">@p.BidsCount عروض</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                            <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-primary w-100">
+                                عرض التفاصيل وتقديم عرض <i class="bi bi-arrow-left"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
