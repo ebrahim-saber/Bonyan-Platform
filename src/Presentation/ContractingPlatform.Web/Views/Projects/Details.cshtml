@@ -169,7 +169,20 @@
                                 <div class="row align-items-center g-3">
                                     <div class="col-md-7">
                                         <div class="d-flex align-items-center gap-2 mb-2">
-                                            <h5 class="fw-bold text-dark mb-0">@bid.ContractorCompanyName</h5>
+                                            @if (bid.ContractorProfileId > 0)
+                                            {
+                                                <a asp-controller="Contractors" asp-action="Profile" asp-route-id="@bid.ContractorProfileId" class="text-decoration-none text-dark fw-bold hover-primary fs-5 d-inline-flex align-items-center gap-1" title="معاينة الملف وسابقة الأعمال">
+                                                    <span>@bid.ContractorCompanyName</span>
+                                                    <i class="bi bi-patch-check-fill text-primary small" title="مقاول معتمد"></i>
+                                                </a>
+                                                <a asp-controller="Contractors" asp-action="Profile" asp-route-id="@bid.ContractorProfileId" class="btn btn-outline-primary btn-sm py-0 px-2 small rounded-pill">
+                                                    <i class="bi bi-person-badge me-1"></i>سابقة الأعمال
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <h5 class="fw-bold text-dark mb-0">@bid.ContractorCompanyName</h5>
+                                            }
                                             <span class="badge bg-warning text-dark px-2 py-1 small fw-bold">
                                                 <i class="bi bi-star-fill text-dark me-1"></i>@bid.ContractorRating.ToString("F1") (@bid.ContractorTotalReviews تقييم)
                                             </span>

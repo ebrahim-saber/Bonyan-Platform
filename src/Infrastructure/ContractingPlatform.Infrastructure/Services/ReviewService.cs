@@ -11,16 +11,20 @@ namespace ContractingPlatform.Infrastructure.Services;
 public class ReviewService : IReviewService
 {
     private readonly ApplicationDbContext _context;
+    private readonly INotificationService _notificationService;
 
-    public ReviewService(ApplicationDbContext context)
+    public ReviewService(ApplicationDbContext context, INotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
     public async Task<ApiResponse<int>> SubmitReviewAsync(CreateReviewDto dto, int clientProfileId)
     {
         var contract = await _context.ProjectContracts
-            .Include(c => c.Contractor)
+            .Include(c => c.Contractor).ThenInclude(co => co.User)
+            .Include(c => c.Client).ThenInclude(cl => cl.User)
+            .Include(c => c.ProjectRequest)
             .Include(c => c.Review)
             .FirstOrDefaultAsync(c => c.Id == dto.ProjectContractId);
 
@@ -70,6 +74,15 @@ public class ReviewService : IReviewService
         contractor.Rating = Math.Round((decimal)existingRatings.Average(), 2);
 
         await _context.SaveChangesAsync();
+
+        if (contract.Contractor?.User != null)
+        {
+            await _notificationService.SendNotificationAsync(
+                contract.Contractor.UserId,
+                "تقييم جديد من العميل",
+                $"حصلت على تقييم {dto.OverallRating} نجوم من العميل {(contract.Client?.User?.FullName ?? "عميل")} لمشروع '{contract.ProjectRequest?.Title ?? ""}'.",
+                $"/Contractors/Profile/{contract.ContractorProfileId}");
+        }
 
         return ApiResponse<int>.Ok(review.Id, "شكراً لك، تم إضافة تقييمك بنجاح");
     }

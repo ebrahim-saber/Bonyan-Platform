@@ -6,6 +6,7 @@ using ContractingPlatform.Application.DTOs.Reviews;
 using ContractingPlatform.Application.DTOs.Notifications;
 using ContractingPlatform.Application.DTOs.Chat;
 using ContractingPlatform.Application.DTOs.Payments;
+using ContractingPlatform.Application.DTOs.Contractors;
 using ContractingPlatform.Domain.Entities;
 using ContractingPlatform.Domain.Enums;
 
@@ -104,6 +105,13 @@ public interface IPaymentService
     Task<ApiResponse<PaymentReceiptDto>> GetReceiptAsync(string transactionReference, string userId, bool isAdmin);
     Task<ContractFinancialSummaryDto> GetContractFinancialSummaryAsync(int contractId);
 }
+
+public interface IContractorService
+{
+    Task<ContractorPublicProfileDto?> GetPublicProfileAsync(int contractorProfileId);
+    Task<List<ContractorDirectoryItemDto>> GetContractorsDirectoryAsync(string? city = null, int? serviceId = null);
+}
+
 
 
 

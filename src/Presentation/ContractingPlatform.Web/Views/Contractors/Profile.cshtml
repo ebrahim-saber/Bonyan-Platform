@@ -1,0 +1,293 @@
+@model ContractingPlatform.Application.DTOs.Contractors.ContractorPublicProfileDto
+@{
+    ViewData["Title"] = $"{Model.CompanyName} - ملف المقاول المعتمد وسابقة الأعمال";
+}
+
+<div class="container py-4">
+    <!-- Header Profile Card -->
+    <div class="card card-custom p-4 p-md-5 mb-4 shadow-sm border">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <div class="d-flex flex-column flex-sm-row align-items-start gap-4">
+                    <!-- Logo / Avatar -->
+                    <div class="rounded-4 p-3 bg-primary bg-opacity-10 text-primary fs-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 100px; height: 100px;">
+                        <i class="bi bi-buildings"></i>
+                    </div>
+
+                    <div>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            <h2 class="fw-extrabold text-dark mb-0">@Model.CompanyName</h2>
+                            @if (Model.IsVerified)
+                            {
+                                <span class="badge bg-success text-white px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1 shadow-sm">
+                                    <i class="bi bi-patch-check-fill"></i>
+                                    <span>منشأة موثقة ومعتمدة</span>
+                                </span>
+                            }
+                        </div>
+
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i> @Model.City، @Model.District (التغطية: @Model.CoverageCities)
+                        </p>
+
+                        <div class="d-flex flex-wrap align-items-center gap-3 text-secondary small">
+                            <span>س.ت: <strong class="text-dark font-monospace">@Model.CommercialRegistrationNo</strong></span>
+                            @if (!string.IsNullOrEmpty(Model.TaxNumber))
+                            {
+                                <span>الرقم الضريبي: <strong class="text-dark font-monospace">@Model.TaxNumber</strong></span>
+                            }
+                            <span>الخبرة: <strong class="text-dark">@Model.YearsOfExperience سنوات</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-muted small mt-3 mb-0 leading-relaxed" style="line-height: 1.7;">
+                    @Model.Bio
+                </p>
+            </div>
+
+            <!-- Score Summary Card -->
+            <div class="col-lg-4 text-center">
+                <div class="p-4 rounded-4 border shadow-sm" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                    <span class="text-muted small d-block mb-1">معدل تقييم العملاء العام</span>
+                    <div class="d-flex justify-content-center align-items-baseline gap-2 mb-1">
+                        <h1 class="fw-black text-primary mb-0" style="font-size: 3.2rem;">@Model.Rating.ToString("F1")</h1>
+                        <span class="text-muted fs-5">/ 5.0</span>
+                    </div>
+
+                    <div class="text-warning fs-5 mb-2">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Math.Round(Model.Rating))
+                            {
+                                <i class="bi bi-star-fill"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-star"></i>
+                            }
+                        }
+                    </div>
+                    <small class="text-muted d-block">بناءً على <strong>@Model.TotalReviews تقييمات ميدانية</strong> موثقة</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi-Criteria Ratings & Specializations Row -->
+    <div class="row g-4 mb-4">
+        <!-- Criteria Progress Bars -->
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 h-100 shadow-sm border">
+                <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-bar-chart-fill text-primary"></i>
+                    <span>مؤشرات الأداء الميداني للمنشأة</span>
+                </h5>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small fw-bold mb-1">
+                        <span class="text-dark">جودة التنفيذ والتشطيب الهندسي</span>
+                        <span class="text-primary">@Model.QualityPercentage%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; border-radius: 6px;">
+                        <div class="progress-bar bg-primary" style="width: @Model.QualityPercentage%;"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small fw-bold mb-1">
+                        <span class="text-dark">الالتزام بالجدول الزمني والمواعيد</span>
+                        <span class="text-success">@Model.PunctualityPercentage%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; border-radius: 6px;">
+                        <div class="progress-bar bg-success" style="width: @Model.PunctualityPercentage%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="d-flex justify-content-between small fw-bold mb-1">
+                        <span class="text-dark">التعامل والاحترافية الفنية والتواصل</span>
+                        <span class="text-info">@Model.CommunicationPercentage%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; border-radius: 6px;">
+                        <div class="progress-bar bg-info" style="width: @Model.CommunicationPercentage%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services & Capabilities -->
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 h-100 shadow-sm border">
+                <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-tools text-warning"></i>
+                    <span>الخدمات والتخصصات المعتمدة</span>
+                </h5>
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    @if (Model.Services.Any())
+                    {
+                        @foreach (var s in Model.Services)
+                        {
+                            <span class="badge bg-light text-dark border p-2 fs-6 fw-normal d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-check-circle-fill text-success"></i> @s
+                            </span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="badge bg-light text-dark border p-2">مقاولات عامة وتشطيبات متكاملة</span>
+                    }
+                </div>
+
+                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">هل ترغب بتنفيذ مشروعك مع هذه المنشأة؟</span>
+                    <a asp-controller="Projects" asp-action="Create" class="btn btn-primary-custom btn-sm py-2 px-3">
+                        <i class="bi bi-plus-circle me-1"></i> طرح مشروع وطلب عرض
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs: Verified Projects & Client Reviews -->
+    <div class="card card-custom shadow-sm border overflow-hidden">
+        <ul class="nav nav-tabs nav-tabs-custom px-4 pt-3 border-bottom" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active fw-bold d-flex align-items-center gap-2" data-bs-toggle="tab" data-bs-target="#tab-portfolio">
+                    <i class="bi bi-patch-check-fill text-success"></i>
+                    <span>معرض المشاريع الموثقة عبر المنصة (@Model.CompletedProjects.Count)</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold d-flex align-items-center gap-2" data-bs-toggle="tab" data-bs-target="#tab-reviews">
+                    <i class="bi bi-chat-quote-fill text-primary"></i>
+                    <span>آراء ومراجعات العملاء (@Model.Reviews.Count)</span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-4">
+            <!-- Portfolio Tab -->
+            <div class="tab-pane fade show active" id="tab-portfolio">
+                @if (!Model.CompletedProjects.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-folder-check fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                        <h6 class="fw-bold">المشاريع المكتملة حديثاً قيد التوثيق</h6>
+                        <p class="small mb-0">تظهر هنا المشاريع المنفذة والمعتمدة عبر حساب الضمان المالي لمنصة بُنيان فور اكتمالها.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-4">
+                        @foreach (var proj in Model.CompletedProjects)
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 rounded-3 border p-3 shadow-sm bg-white">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="badge bg-light text-primary border small">@proj.CategoryName</span>
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success small d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-patch-check-fill"></i> موثق
+                                        </span>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1 text-truncate">@proj.Title</h6>
+                                    <small class="text-muted d-block mb-3">
+                                        <i class="bi bi-geo-alt me-1"></i> @proj.City | تسليم: @proj.CompletedAt.ToString("yyyy/MM/dd")
+                                    </small>
+
+                                    @if (proj.OverallRating.HasValue)
+                                    {
+                                        <div class="p-2 rounded-2 bg-light border mb-3 small">
+                                            <div class="text-warning mb-1" style="font-size: 0.8rem;">
+                                                @for (int s = 1; s <= proj.OverallRating.Value; s++)
+                                                {
+                                                    <i class="bi bi-star-fill"></i>
+                                                }
+                                            </div>
+                                            <p class="text-muted mb-0 small fst-italic text-truncate">
+                                                "@proj.ClientComment"
+                                            </p>
+                                        </div>
+                                    }
+
+                                    <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">القيمة التعاقدية:</span>
+                                        <strong class="text-dark">@proj.TotalAmount.ToString("N0") ر.س</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade" id="tab-reviews">
+                @if (!Model.Reviews.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-star-half fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                        <h6 class="fw-bold">لا توجد مراجعات حتى الآن</h6>
+                        <p class="small mb-0">ستظهر هنا تقييمات العملاء الميدانية المعتمدة بعد اكتمال مشاريعهم.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var r in Model.Reviews)
+                        {
+                            <div class="p-3 p-md-4 rounded-3 border bg-light bg-opacity-50">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary fs-5">
+                                            <i class="bi bi-person-check-fill"></i>
+                                        </div>
+                                        <div>
+                                            <strong class="text-dark d-block">@r.ClientName</strong>
+                                            <small class="text-muted">عميل موثق | @r.CreatedAt.ToString("yyyy/MM/dd")</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-warning fs-6">
+                                        @for (int star = 1; star <= r.OverallRating; star++)
+                                        {
+                                            <i class="bi bi-star-fill"></i>
+                                        }
+                                        <strong class="text-dark ms-1 small">(@r.OverallRating / 5)</strong>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    <span class="badge bg-white text-secondary border small">الجودة: @r.QualityRating/5</span>
+                                    <span class="badge bg-white text-secondary border small">المواعيد: @r.PunctualityRating/5</span>
+                                    <span class="badge bg-white text-secondary border small">التواصل: @r.CommunicationRating/5</span>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(r.Comment))
+                                {
+                                    <p class="text-dark mb-0 small leading-relaxed">
+                                        @r.Comment
+                                    </p>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-tabs-custom .nav-link {
+        color: #64748b;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.75rem 1.25rem;
+    }
+    .nav-tabs-custom .nav-link.active {
+        color: #0f766e;
+        background: transparent;
+        border-bottom-color: #0f766e;
+    }
+</style>

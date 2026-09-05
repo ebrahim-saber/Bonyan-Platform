@@ -1,0 +1,132 @@
+@model List<ContractingPlatform.Application.DTOs.Contractors.ContractorDirectoryItemDto>
+@{
+    ViewData["Title"] = "دليل المقاولين والمنشآت الهندسية المعتمدة";
+    var categories = ViewBag.Categories as List<ContractingPlatform.Domain.Entities.Category>;
+    var selectedCity = ViewBag.SelectedCity as string;
+}
+
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="card card-custom p-4 p-md-5 mb-4 shadow-sm border" style="background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary text-white px-3 py-1 rounded-pill mb-2">منشآت موثقة 100% بالسجل التجاري</span>
+                <h2 class="fw-extrabold text-dark mb-2">دليل مقاولي وتشطيبات المملكة المعتمدين</h2>
+                <p class="text-muted mb-0">تصفح أفضل شركات ومؤسسات المقاولات، اطلع على تقييمات العملاء الحقيقية، وسابقة مشاريعهم الموثقة عبر المنصة.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a asp-controller="Projects" asp-action="Create" class="btn btn-primary-custom px-4 py-3 fw-bold shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> طرح مشروعك واستقبال العروض
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="card card-custom p-3 mb-4 shadow-sm border bg-white">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-geo-alt text-muted"></i></span>
+                    <select name="city" class="form-select">
+                        <option value="">كافة المدن والمناطق</option>
+                        <option value="الرياض" selected="@(selectedCity == "الرياض")">الرياض</option>
+                        <option value="جدة" selected="@(selectedCity == "جدة")">جدة</option>
+                        <option value="الدمام" selected="@(selectedCity == "الدمام")">الدمام والخبر</option>
+                        <option value="مكة المكرمة" selected="@(selectedCity == "مكة المكرمة")">مكة المكرمة</option>
+                        <option value="المدينة المنورة" selected="@(selectedCity == "المدينة المنورة")">المدينة المنورة</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-hammer text-muted"></i></span>
+                    <select name="serviceId" class="form-select">
+                        <option value="">كافة التخصصات والخدمات</option>
+                        @if (categories != null)
+                        {
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id">@cat.NameAr</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-custom w-100 py-2 d-flex align-items-center justify-content-center gap-1">
+                    <i class="bi bi-funnel"></i>
+                    <span>تصفية</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Contractors Grid -->
+    @if (!Model.Any())
+    {
+        <div class="card card-custom p-5 text-center shadow-sm border">
+            <i class="bi bi-search fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+            <h5 class="fw-bold text-dark">لا توجد منشآت مطابقة للبحث حالياً</h5>
+            <p class="text-muted small mb-0">جرب تغيير فلاتر المدينة أو التخصص للوصول لكافة المقاولين المعتمدين.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var c in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-custom h-100 p-4 shadow-sm border d-flex flex-column bg-white">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="rounded-3 p-3 bg-primary bg-opacity-10 text-primary fs-3">
+                                <i class="bi bi-buildings"></i>
+                            </div>
+                            @if (c.IsVerified)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1 small d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-patch-check-fill"></i> موثق
+                                </span>
+                            }
+                        </div>
+
+                        <h5 class="fw-bold text-dark mb-1 text-truncate">@c.CompanyName</h5>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-geo-alt me-1 text-danger"></i> @c.City | خبرة @c.YearsOfExperience سنوات
+                        </p>
+
+                        <!-- Rating summary -->
+                        <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-2 bg-light border">
+                            <span class="text-warning fs-6">
+                                <i class="bi bi-star-fill"></i>
+                            </span>
+                            <strong class="text-dark">@c.Rating.ToString("F1")</strong>
+                            <span class="text-muted small">(@c.TotalReviews تقييمات)</span>
+                        </div>
+
+                        <!-- Services pills -->
+                        <div class="d-flex flex-wrap gap-1 mb-4">
+                            @foreach (var s in c.Services.Take(3))
+                            {
+                                <span class="badge bg-light text-secondary border small">@s</span>
+                            }
+                            @if (c.Services.Count > 3)
+                            {
+                                <span class="badge bg-light text-muted border small">+@(c.Services.Count - 3)</span>
+                            }
+                        </div>
+
+                        <div class="mt-auto pt-3 border-top">
+                            <a href="@Url.Action("Profile", "Contractors", new { id = c.Id })" class="btn btn-outline-custom w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                                <span>معاينة الملف وسابقة الأعمال</span>
+                                <i class="bi bi-arrow-left"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

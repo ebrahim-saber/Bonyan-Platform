@@ -53,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IContractorService, ContractingPlatform.Infrastructure.Services.ContractorService>();
 
         return services;
     }
