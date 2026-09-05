@@ -4,33 +4,60 @@
     ViewData["Title"] = "منصة بُنيان - المنظومة الذكية لمشاريع المقاولات والتشطيب وحساب الضمان";
     var categories = ViewBag.Categories as List<Category> ?? new();
     var latestProjects = ViewBag.LatestProjects as List<ProjectCardDto> ?? new();
+
+    // Map Category IDs to high-resolution architectural photography
+    var categoryImages = new Dictionary<int, string>
+    {
+        { 1, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" }, // Building & Finishing Villa
+        { 2, "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80" }, // Modern Lighting & Electrical
+        { 3, "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80" }, // Luxury Plumbing & Fixtures
+        { 4, "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80" }, // Modern Ducted AC & HVAC
+        { 5, "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80" }, // Fluted Decor & Paint
+        { 6, "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80" }  // Modern Architecture & Insulation
+    };
 }
 
-<!-- Modern Hero Section -->
+<!-- ==========================================================================
+     Modern 2-Column Split Hero Section with Visual 3D Showcase
+     ========================================================================== -->
 <div class="hero-wrapper">
     <div class="hero-mesh-overlay"></div>
-    <div class="container position-relative py-5">
-        <div class="row align-items-center justify-content-center text-center">
-            <div class="col-xl-9 col-lg-10">
-                <!-- Floating Trust Badge -->
+    <div class="container position-relative py-4">
+        <div class="row align-items-center g-5">
+            <!-- Right Column: Content & Actions -->
+            <div class="col-xl-7 col-lg-6 text-start">
+                <!-- Glowing Trust Badge -->
                 <div class="hero-badge-pill">
                     <span class="pulse-dot"></span>
-                    <span>المنصة الأولى المعتمدة بنظام الدفعات المجمدة والمحمية (Escrow Protection)</span>
+                    <span>المنصة السعودية الأولى للتعاقد الإنشائي الموثق وحساب الضمان (Escrow)</span>
                 </div>
 
-                <!-- Main Heading -->
-                <h1 class="display-3 fw-extrabold mb-4 text-white" style="letter-spacing: -0.02em; line-height: 1.25;">
-                    ابنِ، شطّب، ونفّذ مشاريعك
-                    <span style="background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">بأعلى معايير الثقة والضمان المالي</span>
+                <!-- Main Title with Gradient -->
+                <h1 class="display-4 fw-extrabold mb-3 text-white" style="letter-spacing: -0.02em; line-height: 1.25;">
+                    ابنِ وشطّب عقارك
+                    <span class="gradient-text d-block mt-1">بأعلى معايير الثقة والضمان المالي</span>
                 </h1>
 
                 <!-- Subtitle -->
-                <p class="lead mb-5 mx-auto text-light opacity-90 fw-normal" style="max-width: 780px; font-size: 1.2rem; line-height: 1.8;">
-                    صل مشروعك بنخبة مقاولي الإنشاءات والتشطيب المعتمدين بالسجل التجاري. قارن عروض الأسعار التنافسية، ووقّع عقوداً إلكترونية ملزمة تدير من خلالها دفعاتك ومراحل البناء بكل أمان وسلاسة.
+                <p class="lead mb-4 text-light opacity-90 fw-normal" style="font-size: 1.12rem; line-height: 1.8;">
+                    صل مشروعك بنخبة مقاولي الإنشاءات والتشطيب المعتمدين بالسجل التجاري. قارن عروض الأسعار التنافسية، ووقّع عقوداً إلكترونية تدير دفعاتك ومراحل البناء عبر حساب الضمان المشترك بكل أمان.
                 </p>
 
-                <!-- Modern Search Bar Card -->
-                <div class="hero-search-card mx-auto mb-4" style="max-width: 860px;">
+                <!-- Value Highlights -->
+                <div class="d-flex flex-wrap gap-3 text-white small mb-4">
+                    <span class="badge bg-white bg-opacity-10 border border-light border-opacity-25 px-3 py-2 rounded-pill">
+                        <i class="bi bi-shield-check text-warning me-1"></i> دفعات مجمدة لا تصرف إلا بموافقتك
+                    </span>
+                    <span class="badge bg-white bg-opacity-10 border border-light border-opacity-25 px-3 py-2 rounded-pill">
+                        <i class="bi bi-patch-check text-success me-1"></i> مقاولون معتمدون بالسجل التجاري
+                    </span>
+                    <span class="badge bg-white bg-opacity-10 border border-light border-opacity-25 px-3 py-2 rounded-pill">
+                        <i class="bi bi-file-earmark-ruled text-info me-1"></i> مطابقة كود البناء السعودي
+                    </span>
+                </div>
+
+                <!-- Search Bar Card -->
+                <div class="hero-search-card mb-4">
                     <form asp-controller="Projects" asp-action="Index" method="get" class="row g-2 align-items-center">
                         <div class="col-md-5">
                             <div class="input-group">
@@ -64,15 +91,53 @@
                 </div>
 
                 <!-- Call to Action Buttons -->
-                <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <a asp-controller="Projects" asp-action="Create" class="btn btn-accent px-4 py-2 fs-6 d-inline-flex align-items-center gap-2 shadow-gold">
+                <div class="d-flex flex-wrap gap-3">
+                    <a asp-controller="Projects" asp-action="Create" class="btn btn-accent px-4 py-3 fs-6 d-inline-flex align-items-center gap-2 shadow-gold">
                         <i class="bi bi-plus-circle-fill"></i>
-                        <span>اطرح مشروعك مجاناً</span>
+                        <span>اطرح مشروعك واستقبل العروض مجاناً</span>
                     </a>
-                    <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-outline-light px-4 py-2 fs-6 d-inline-flex align-items-center gap-2" style="border-width: 1.5px; border-radius: 10px;">
-                        <i class="bi bi-building-check"></i>
-                        <span>انضم كمنشأة مقاولات معتمدة</span>
+                    <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-outline-light px-4 py-3 fs-6 d-inline-flex align-items-center gap-2" style="border-width: 1.5px; border-radius: 10px;">
+                        <i class="bi bi-tools"></i>
+                        <span>انضم كشريك مقاول معتمد</span>
                     </a>
+                </div>
+            </div>
+
+            <!-- Left Column: Visual 3D Showcase Mockup -->
+            <div class="col-xl-5 col-lg-6">
+                <div class="hero-showcase-card position-relative">
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" alt="تشطيب فيلا فاخرة بضمان منصة بنيان" class="hero-showcase-img">
+                    
+                    <!-- Floating Top Badge: Project Status -->
+                    <div class="floating-badge top-badge text-start">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-success small px-2 py-1"><i class="bi bi-check-circle-fill me-1"></i> قيد التنفيذ</span>
+                            <span class="text-white-50 small">مشروع #1042</span>
+                        </div>
+                        <h6 class="fw-bold mb-1 text-white">تشطيب فيلا سكنية - حي النرجس، الرياض</h6>
+                        <div class="small text-warning fw-bold">
+                            <i class="bi bi-shield-lock-fill me-1"></i> الدفعة المحمية بالضمان: 45,000 ر.س
+                        </div>
+                    </div>
+
+                    <!-- Floating Bottom Badge: Contractor Verification -->
+                    <div class="floating-badge bottom-badge text-start">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 48px; height: 48px;">
+                                <i class="bi bi-building-check"></i>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <h6 class="fw-bold mb-0 text-white">شركة صروح البناء المعتمدة</h6>
+                                    <i class="bi bi-patch-check-fill text-primary small"></i>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 small mt-1">
+                                    <span class="text-warning"><i class="bi bi-star-fill"></i> 4.9 (128 تقييم)</span>
+                                    <span class="text-white-50">| سجل تجاري موثق</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -80,7 +145,9 @@
 </div>
 
 <div class="container mb-5">
-    <!-- Trust Stats Strip (Elevated floating strip overlapping hero) -->
+    <!-- ==========================================================================
+         Trust Stats Strip (Floating Counter Cards)
+         ========================================================================== -->
     <div class="trust-strip mb-5">
         <div class="row g-4 align-items-center text-start">
             <div class="col-lg-3 col-sm-6">
@@ -89,7 +156,7 @@
                         <i class="bi bi-patch-check-fill"></i>
                     </div>
                     <div>
-                        <h4 class="fw-extrabold mb-0 text-dark">+250</h4>
+                        <h3 class="fw-extrabold mb-0 text-dark">+250</h3>
                         <span class="text-muted small fw-semibold">مقاول معتمد بالسجل التجاري</span>
                     </div>
                 </div>
@@ -100,7 +167,7 @@
                         <i class="bi bi-shield-lock-fill"></i>
                     </div>
                     <div>
-                        <h4 class="fw-extrabold mb-0 text-dark">100%</h4>
+                        <h3 class="fw-extrabold mb-0 text-dark">100%</h3>
                         <span class="text-muted small fw-semibold">حماية مالية عبر حساب الضمان</span>
                     </div>
                 </div>
@@ -111,7 +178,7 @@
                         <i class="bi bi-file-earmark-ruled-fill"></i>
                     </div>
                     <div>
-                        <h4 class="fw-extrabold mb-0 text-dark">كود البناء</h4>
+                        <h3 class="fw-extrabold mb-0 text-dark">كود البناء</h3>
                         <span class="text-muted small fw-semibold">مطابقة المواصفات الفنية المعتمدة</span>
                     </div>
                 </div>
@@ -122,7 +189,7 @@
                         <i class="bi bi-clock-history"></i>
                     </div>
                     <div>
-                        <h4 class="fw-extrabold mb-0 text-dark">عقود ملزمة</h4>
+                        <h3 class="fw-extrabold mb-0 text-dark">عقود ملزمة</h3>
                         <span class="text-muted small fw-semibold">مراحل محددة ودفعات مجدولة</span>
                     </div>
                 </div>
@@ -130,63 +197,110 @@
         </div>
     </div>
 
-    <!-- How It Works Section -->
-    <div class="text-center my-5 py-3">
-        <span class="badge-soft-primary mb-2 d-inline-block">آلية عمل آمنة ومدروسة</span>
-        <h2 class="fw-extrabold text-dark mb-2">كيف تضمن بُنيان نجاح مشروعك وحماية أموالك؟</h2>
-        <p class="text-muted mx-auto" style="max-width: 600px;">ثلاث خطوات تفصلك عن إنجاز مشروعك بأعلى درجات الاحترافية والموثوقية القانونية والمالية.</p>
+    <!-- ==========================================================================
+         Interactive Construction & Finishing Cost Estimator Widget
+         ========================================================================== -->
+    <div class="estimator-card my-5 position-relative overflow-hidden">
+        <div style="position: absolute; top: -60px; left: -60px; width: 220px; height: 220px; background: rgba(245, 158, 11, 0.15); filter: blur(60px); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -60px; right: -60px; width: 220px; height: 220px; background: rgba(16, 185, 129, 0.15); filter: blur(60px); border-radius: 50%;"></div>
+
+        <div class="position-relative z-1 text-start">
+            <div class="row align-items-center g-4 mb-4">
+                <div class="col-lg-8">
+                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2">
+                        <i class="bi bi-calculator-fill me-1"></i> أداة ذكية وتفاعلية
+                    </span>
+                    <h2 class="display-6 fw-extrabold text-white mb-2">حاسبة تقدير تكلفة البناء والتشطيب التقريبية</h2>
+                    <p class="text-light opacity-75 mb-0">احسب الميزانية التقديرية لمشروعك وفق متوسط أسعار السوق ومواصفات المواد المعتمدة في المملكة.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a asp-controller="Projects" asp-action="Create" class="btn btn-accent px-4 py-2 fw-bold shadow-gold">
+                        طرح مشروعك بهذه المواصفات <i class="bi bi-arrow-left me-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-7">
+                    <!-- Step 1: Area Slider -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-white mb-0">المساحة الإجمالية للمشروع (بالمتر المربع):</label>
+                            <span class="badge bg-primary fs-6 px-3 py-1" id="areaValueDisplay">350 م²</span>
+                        </div>
+                        <input type="range" class="form-range" id="areaRangeInput" min="50" max="1500" step="10" value="350" oninput="calculateEstimate()">
+                        <div class="d-flex justify-content-between text-muted small">
+                            <span>50 م² (ملحق / شقة)</span>
+                            <span>500 م² (فيلا سكنية)</span>
+                            <span>1,500 م² (مجمع / عمارة)</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Quality Tier Radios -->
+                    <div>
+                        <label class="form-label fw-bold text-white mb-2">مستوى ونوع التشطيب المطلوب:</label>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-3">
+                                <input type="radio" name="finishTier" id="tier1" class="estimator-radio-btn" value="550" onchange="calculateEstimate()">
+                                <label for="tier1" class="estimator-radio-label">
+                                    <div class="fw-bold mb-1">عظم بالمواد</div>
+                                    <small class="opacity-75">~550 ر.س/م²</small>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="radio" name="finishTier" id="tier2" class="estimator-radio-btn" value="450" onchange="calculateEstimate()">
+                                <label for="tier2" class="estimator-radio-label">
+                                    <div class="fw-bold mb-1">تشطيب تجاري</div>
+                                    <small class="opacity-75">~450 ر.س/م²</small>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="radio" name="finishTier" id="tier3" class="estimator-radio-btn" value="850" checked onchange="calculateEstimate()">
+                                <label for="tier3" class="estimator-radio-label">
+                                    <div class="fw-bold mb-1">ديلوكس فاخر</div>
+                                    <small class="opacity-75">~850 ر.س/م²</small>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="radio" name="finishTier" id="tier4" class="estimator-radio-btn" value="1400" onchange="calculateEstimate()">
+                                <label for="tier4" class="estimator-radio-label">
+                                    <div class="fw-bold mb-1">سوبر لوكس VIP</div>
+                                    <small class="opacity-75">~1,400 ر.س/م²</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculator Output Box -->
+                <div class="col-lg-5">
+                    <div class="estimator-output-box">
+                        <span class="text-light opacity-75 small d-block mb-1">التكلفة الإجمالية التقديرية (شاملة المواد والتنفيذ)</span>
+                        <h2 class="display-6 fw-extrabold text-warning mb-3" id="totalEstimateDisplay">297,500 <small class="fs-5 text-white">ر.س</small></h2>
+                        
+                        <div class="row g-2 text-start pt-2 border-top border-light border-opacity-25 small text-light opacity-90">
+                            <div class="col-6">
+                                <div><i class="bi bi-clock-history text-warning me-1"></i> المدة التقديرية:</div>
+                                <strong class="text-white" id="durationEstimateDisplay">90 - 120 يوم</strong>
+                            </div>
+                            <div class="col-6">
+                                <div><i class="bi bi-shield-check text-success me-1"></i> جدول الدفعات:</div>
+                                <strong class="text-white" id="milestonesEstimateDisplay">4 مراحل مجمدة</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row g-4 text-start mb-5">
-        <div class="col-md-4">
-            <div class="card card-custom p-4 h-100 position-relative">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <div class="category-icon-box" style="background: rgba(11, 19, 43, 0.05); color: var(--brand-navy);">
-                        <i class="bi bi-file-text-fill fs-3"></i>
-                    </div>
-                    <span class="badge bg-light text-primary border fw-bold fs-6 rounded-pill px-3 py-1">01</span>
-                </div>
-                <h5 class="fw-bold text-dark mb-2">اطرح متطلبات المشروع</h5>
-                <p class="text-secondary small mb-0" style="line-height: 1.7;">
-                    حدد المدينة، مساحة العقار، نطاق العمل (عظم، تشطيب، ترميم)، المخططات، والميزانية المتوقعة بكل سهولة لتبدأ المنظومة بتوجيهه للمقاولين المناسبين.
-                </p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card card-custom p-4 h-100 position-relative">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <div class="category-icon-box" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-amber);">
-                        <i class="bi bi-calculator-fill fs-3"></i>
-                    </div>
-                    <span class="badge bg-light text-warning border fw-bold fs-6 rounded-pill px-3 py-1">02</span>
-                </div>
-                <h5 class="fw-bold text-dark mb-2">استقبل وقارن عروض الأسعار</h5>
-                <p class="text-secondary small mb-0" style="line-height: 1.7;">
-                    تلقَّ عروض أسعار تفصيلية توضح تكلفة المواد والمصنعيات والمدة الزمنية. قارن بين سابقة أعمال المنشآت وتقييمات العملاء الموثقة لاختيار الأنسب.
-                </p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card card-custom p-4 h-100 position-relative">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <div class="category-icon-box" style="background: rgba(16, 185, 129, 0.1); color: var(--escrow-emerald);">
-                        <i class="bi bi-shield-check fs-3"></i>
-                    </div>
-                    <span class="badge bg-light text-success border fw-bold fs-6 rounded-pill px-3 py-1">03</span>
-                </div>
-                <h5 class="fw-bold text-dark mb-2">تعاقد بحساب الضمان (Escrow)</h5>
-                <p class="text-secondary small mb-0" style="line-height: 1.7;">
-                    يتم تحرير عقد إلكتروني بمراحل واضحة. تبقى دفعات المشروع مجمدة في حساب الضمان المشترك ولا يتم الإفراج عنها للمقاول إلا بعد استلامك الفعلي للمرحلة.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Categories Grid -->
-    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 pt-3">
+    <!-- ==========================================================================
+         Visual Image-Driven Category Cards (Behance / Architectural Standard)
+         ========================================================================== -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 pt-3 text-start">
         <div>
             <span class="badge-soft-warning mb-2 d-inline-block">تخصصات شاملة</span>
-            <h3 class="fw-extrabold text-dark mb-0">تصفح قطاعات المقاولات والخدمات</h3>
+            <h2 class="fw-extrabold text-dark mb-0">قطاعات المقاولات والتشطيب المتخصصة</h2>
         </div>
         <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-custom btn-sm d-inline-flex align-items-center gap-1">
             <span>استعراض كافة القطاعات والمشاريع</span>
@@ -194,20 +308,21 @@
         </a>
     </div>
 
-    <div class="row g-3 mb-5">
+    <div class="row g-4 mb-5 text-start">
         @foreach (var cat in categories)
         {
+            var imgUrl = categoryImages.ContainsKey(cat.Id) ? categoryImages[cat.Id] : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80";
+
             <div class="col-lg-4 col-md-6">
-                <a asp-controller="Projects" asp-action="Index" asp-route-categoryId="@cat.Id" class="category-card">
-                    <div class="category-icon-box">
-                        <i class="bi @(cat.IconCss ?? "bi-building")"></i>
-                    </div>
-                    <div class="flex-grow-1 overflow-hidden">
-                        <div class="d-flex align-items-center justify-content-between mb-1">
-                            <h5 class="fw-bold text-dark mb-0 text-truncate">@cat.NameAr</h5>
-                            <i class="bi bi-arrow-left-short text-muted fs-4"></i>
+                <a asp-controller="Projects" asp-action="Index" asp-route-categoryId="@cat.Id" class="category-img-card">
+                    <img src="@imgUrl" alt="@cat.NameAr" class="category-img-bg">
+                    <div class="category-img-gradient"></div>
+                    <div class="category-img-content">
+                        <div class="category-badge-icon">
+                            <i class="bi @(cat.IconCss ?? "bi-building")"></i>
                         </div>
-                        <p class="text-muted small mb-0 text-truncate">
+                        <h4 class="fw-bold mb-1 text-white">@cat.NameAr</h4>
+                        <p class="small text-light opacity-80 mb-0 text-truncate">
                             @(string.IsNullOrEmpty(cat.DescriptionAr) ? "تصفح المشاريع والخدمات المتاحة" : cat.DescriptionAr)
                         </p>
                     </div>
@@ -216,13 +331,83 @@
         }
     </div>
 
-    <!-- Latest Open Projects -->
+    <!-- ==========================================================================
+         How Escrow Works Section (Clear Step-by-Step Protection)
+         ========================================================================== -->
+    <div class="text-center my-5 py-3">
+        <span class="badge-soft-primary mb-2 d-inline-block">آلية عمل آمنة ومدروسة</span>
+        <h2 class="fw-extrabold text-dark mb-2">كيف تضمن بُنيان نجاح مشروعك وحماية أموالك؟</h2>
+        <p class="text-muted mx-auto" style="max-width: 620px;">أربع خطوات قانونية وتقنية تحمي حقوق العميل والمقاول من النزاعات وتضمن جودة التسليم.</p>
+    </div>
+
+    <div class="row g-4 text-start mb-5">
+        <div class="col-lg-3 col-sm-6">
+            <div class="card card-custom p-4 h-100 position-relative border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-pencil-square fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-primary border fw-bold fs-6 rounded-pill px-3 py-1">01</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">1. اطرح متطلباتك</h5>
+                <p class="text-secondary small mb-0" style="line-height: 1.7;">
+                    حدد المدينة، المساحة، والمواصفات الفنية والميزانية المقدرة لتصل المناقصة لمئات المقاولين المعتمدين.
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card card-custom p-4 h-100 position-relative border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-file-earmark-check fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-warning border fw-bold fs-6 rounded-pill px-3 py-1">02</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">2. قارن العروض</h5>
+                <p class="text-secondary small mb-0" style="line-height: 1.7;">
+                    تلقَّ عروض أسعار تفصيلية توضح تكلفة المواد والمصنعية، وتصفح سابقة أعمال المقاولين وتقييمات العملاء.
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card card-custom p-4 h-100 position-relative border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-shield-lock fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-success border fw-bold fs-6 rounded-pill px-3 py-1">03</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">3. تجميد الدفعات (Escrow)</h5>
+                <p class="text-secondary small mb-0" style="line-height: 1.7;">
+                    عقد إلكتروني يحدد المراحل، ويتم إيداع دفعة كل مرحلة في حساب الضمان المجمد دون صرفها للمقاول مسبقاً.
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card card-custom p-4 h-100 position-relative border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-patch-check fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-info border fw-bold fs-6 rounded-pill px-3 py-1">04</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">4. الفحص والاستلام</h5>
+                <p class="text-secondary small mb-0" style="line-height: 1.7;">
+                    يقدم المقاول إفادة الإنجاز، وبعد معاينتك ومطابقة كود البناء يتم الإفراج الفوري عن الدفعة بنقرة واحدة.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         Latest Open Projects Section
+         ========================================================================== -->
     @if (latestProjects.Any())
     {
-        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 pt-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 pt-3 text-start">
             <div>
-                <span class="badge-soft-success mb-2 d-inline-block">فرص حصرية للمقاولين</span>
-                <h3 class="fw-extrabold text-dark mb-0">أحدث المشاريع المطروحة لتقديم العروض</h3>
+                <span class="badge-soft-success mb-2 d-inline-block">سوق المناقصات المفتوحة</span>
+                <h2 class="fw-extrabold text-dark mb-0">أحدث المشاريع المطروحة لتقديم عروض الأسعار</h2>
             </div>
             <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-custom btn-sm d-inline-flex align-items-center gap-1">
                 <span>تصفح سوق المشاريع بالكامل</span>
@@ -230,18 +415,19 @@
             </a>
         </div>
 
-        <div class="row g-4 mb-5">
+        <div class="row g-4 mb-5 text-start">
             @foreach (var project in latestProjects)
             {
                 <div class="col-lg-4 col-md-6">
-                    <div class="card card-custom h-100 d-flex flex-column">
+                    <div class="card card-custom h-100 d-flex flex-column border-0 shadow-sm">
+                        <!-- Project Header with Category Visual -->
                         <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="badge-soft-primary">
                                     <i class="bi @project.CategoryIcon me-1"></i> @project.CategoryName
                                 </span>
                                 <span class="text-muted small d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-geo-alt text-danger"></i> @project.City
+                                    <i class="bi bi-geo-alt-fill text-danger"></i> @project.City
                                 </span>
                             </div>
 
@@ -274,7 +460,7 @@
 
                         <div class="card-footer bg-transparent border-0 px-4 pb-4 pt-0">
                             <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="btn btn-outline-custom w-100 d-flex align-items-center justify-content-center gap-2">
-                                <span>عرض تفاصيل المشروع وتقديم عرض</span>
+                                <span>عرض تفاصيل المشروع والمواصفات</span>
                                 <i class="bi bi-arrow-left"></i>
                             </a>
                         </div>
@@ -284,27 +470,63 @@
         </div>
     }
 
-    <!-- High-Impact Call to Action Banner -->
-    <div class="card card-custom overflow-hidden text-white p-5 text-center position-relative my-5" style="background: linear-gradient(135deg, var(--brand-navy) 0%, #1c2541 100%); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1);">
-        <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(245, 158, 11, 0.15); filter: blur(60px); border-radius: 50%;"></div>
-        <div style="position: absolute; bottom: -50px; right: -50px; width: 200px; height: 200px; background: rgba(16, 185, 129, 0.15); filter: blur(60px); border-radius: 50%;"></div>
+    <!-- ==========================================================================
+         High-Impact Call to Action Banner
+         ========================================================================== -->
+    <div class="card card-custom overflow-hidden text-white p-5 text-center position-relative my-5" style="background: linear-gradient(135deg, var(--brand-navy) 0%, #1c2541 100%); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div style="position: absolute; top: -50px; left: -50px; width: 220px; height: 220px; background: rgba(245, 158, 11, 0.18); filter: blur(70px); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -50px; right: -50px; width: 220px; height: 220px; background: rgba(16, 185, 129, 0.18); filter: blur(70px); border-radius: 50%;"></div>
 
         <div class="position-relative z-1">
             <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
-                <i class="bi bi-stars me-1"></i> ابدأ الآن كشريك نجاح
+                <i class="bi bi-stars me-1"></i> شريك النجاح الأول
             </span>
             <h2 class="display-6 fw-extrabold mb-3">هل أنت صاحب منشأة مقاولات أو صيانة معتمدة؟</h2>
             <p class="lead mb-4 mx-auto text-light opacity-90" style="max-width: 680px; font-size: 1.15rem;">
-                انضم الآن لشبكة مقاولي "بُنيان" واستقبل طلبات المشاريع المباشرة في منطقتك وتخصصك، مع توثيق رسمي لعقودك وحماية 100% لمستحقاتك المالية.
+                انضم الآن لشبكة مقاولي "بُنيان" المعتمدة واستقبل طلبات المشاريع المباشرة في منطقتك وتخصصك، مع توثيق رسمي لعقودك وضمان 100% لمستحقاتك المالية.
             </p>
             <div class="d-flex flex-wrap justify-content-center gap-3">
                 <a asp-controller="Account" asp-action="RegisterContractor" class="btn btn-accent btn-lg px-5 fw-bold shadow-gold">
                     <i class="bi bi-check-circle-fill me-1"></i> تسجيل منشأة جديدة مجاناً
                 </a>
                 <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-light btn-lg px-4 fw-semibold" style="border-radius: 10px;">
-                    <i class="bi bi-briefcase me-1"></i> استكشاف المشاريع الحالية
+                    <i class="bi bi-briefcase me-1"></i> استكشاف كافة المشاريع
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Interactive Quick Cost Estimator Logic
+        function calculateEstimate() {
+            const area = parseInt(document.getElementById('areaRangeInput').value, 10);
+            document.getElementById('areaValueDisplay').textContent = area + ' م²';
+
+            const selectedTier = document.querySelector('input[name="finishTier"]:checked');
+            const ratePerMeter = selectedTier ? parseInt(selectedTier.value, 10) : 850;
+
+            const total = area * ratePerMeter;
+            document.getElementById('totalEstimateDisplay').innerHTML = total.toLocaleString('ar-SA') + ' <small class="fs-5 text-white">ر.س</small>';
+
+            // Estimate duration & milestones based on area
+            let duration = "60 - 90 يوم";
+            let milestones = "3 مراحل مجمدة";
+            if (area > 300 && area <= 700) {
+                duration = "120 - 160 يوم";
+                milestones = "4 مراحل مجمدة";
+            } else if (area > 700) {
+                duration = "180 - 240 يوم";
+                milestones = "5 مراحل مجمدة";
+            }
+            document.getElementById('durationEstimateDisplay').textContent = duration;
+            document.getElementById('milestonesEstimateDisplay').textContent = milestones;
+        }
+
+        // Initialize on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            calculateEstimate();
+        });
+    </script>
+}
