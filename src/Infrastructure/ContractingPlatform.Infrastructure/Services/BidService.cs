@@ -12,10 +12,12 @@ namespace ContractingPlatform.Infrastructure.Services;
 public class BidService : IBidService
 {
     private readonly ApplicationDbContext _context;
+    private readonly INotificationService _notificationService;
 
-    public BidService(ApplicationDbContext context)
+    public BidService(ApplicationDbContext context, INotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
     public async Task<ApiResponse<int>> SubmitBidAsync(CreateBidDto dto, int contractorProfileId)
@@ -57,6 +59,17 @@ public class BidService : IBidService
         project.BidsCount++;
         await _context.Bids.AddAsync(bid);
         await _context.SaveChangesAsync();
+
+        var clientProfile = await _context.ClientProfiles.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == project.ClientProfileId);
+        var contractorProfile = await _context.ContractorProfiles.FirstOrDefaultAsync(c => c.Id == contractorProfileId);
+        if (clientProfile != null && contractorProfile != null)
+        {
+            await _notificationService.SendNotificationAsync(
+                clientProfile.UserId,
+                "عرض سعر جديد على مشروعك",
+                $"قدمت منشأة {contractorProfile.CompanyName} عرض سعر بقيمة {bid.ProposedPrice:N0} ر.س لمشروع '{project.Title}'.",
+                $"/Projects/Details/{project.Id}");
+        }
 
         return ApiResponse<int>.Ok(bid.Id, "تم إرسال عرض السعر للعميل بنجاح");
     }
@@ -183,6 +196,17 @@ public class BidService : IBidService
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            var winningContractor = await _context.ContractorProfiles.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == bid.ContractorProfileId);
+            var projectClient = await _context.ClientProfiles.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == clientProfileId);
+            if (winningContractor != null)
+            {
+                await _notificationService.SendNotificationAsync(
+                    winningContractor.UserId,
+                    "تهانينا! تم قبول عرض السعر وتوقيع العقد",
+                    $"وافق العميل {(projectClient?.User?.FullName ?? "صاحب المشروع")} على عرضك لمشروع '{project.Title}'. تم إنشاء العقد رقم #{contract.Id}.",
+                    $"/Contracts/Details/{contract.Id}");
+            }
 
             return ApiResponse<bool>.Ok(true, "تم قبول العرض وإنشاء العقد وجدولة الدفعات بنجاح");
         }

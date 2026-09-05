@@ -6,7 +6,27 @@ namespace ContractingPlatform.Infrastructure.Hubs;
 [Authorize]
 public class PlatformHub : Hub
 {
-    // Join a specific Project/Contract room for real-time chat & updates
+    public override async Task OnConnectedAsync()
+    {
+        var userId = Context.UserIdentifier;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{userId}");
+        }
+        await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var userId = Context.UserIdentifier;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"User_{userId}");
+        }
+        await base.OnDisconnectedAsync(exception);
+    }
+
+    // Join a specific Project room
     public async Task JoinProjectRoom(int projectId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"Project_{projectId}");
@@ -17,15 +37,24 @@ public class PlatformHub : Hub
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Project_{projectId}");
     }
 
-    // Send a message within a project discussion
-    public async Task SendMessage(int projectId, string senderName, string message)
+    // Join a specific Contract room for direct client-contractor chat
+    public async Task JoinContractRoom(int contractId)
     {
-        await Clients.Group($"Project_{projectId}").SendAsync("ReceiveMessage", new
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"Contract_{contractId}");
+    }
+
+    public async Task LeaveContractRoom(int contractId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Contract_{contractId}");
+    }
+
+    // Typing notification inside contract
+    public async Task NotifyTyping(int contractId, string userName)
+    {
+        await Clients.OthersInGroup($"Contract_{contractId}").SendAsync("UserTyping", new
         {
-            ProjectId = projectId,
-            SenderName = senderName,
-            Message = message,
-            Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm")
+            ContractId = contractId,
+            UserName = userName
         });
     }
 }

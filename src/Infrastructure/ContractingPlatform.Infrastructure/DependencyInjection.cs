@@ -50,6 +50,8 @@ public static class DependencyInjection
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IChatService, ChatService>();
 
         return services;
     }

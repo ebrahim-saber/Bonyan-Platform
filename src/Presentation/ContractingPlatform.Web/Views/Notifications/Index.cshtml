@@ -1,0 +1,133 @@
+@model List<ContractingPlatform.Application.DTOs.Notifications.NotificationItemDto>
+@{
+    ViewData["Title"] = "مركز الإشعارات والتنبيهات الفورية";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header Card -->
+            <div class="card card-custom p-4 mb-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-3 p-3 bg-primary bg-opacity-10 text-primary fs-3">
+                            <i class="bi bi-bell-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold text-dark mb-1">مركز الإشعارات والتنبيهات الفورية</h3>
+                            <p class="text-muted mb-0 small">متابعة كافة المستجدات والعروض والدفعات والمحادثات الميدانية لحظة بلحظة.</p>
+                        </div>
+                    </div>
+
+                    @if (Model != null && Model.Any(n => !n.IsRead))
+                    {
+                        <form asp-action="MarkAllAsRead" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-custom btn-sm d-flex align-items-center gap-2">
+                                <i class="bi bi-check2-all text-success fs-6"></i>
+                                <span>تحديد الكل كمقروء</span>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+
+            <!-- Notifications List -->
+            @if (Model == null || !Model.Any())
+            {
+                <div class="card card-custom p-5 text-center">
+                    <div class="py-5">
+                        <div class="fs-1 text-muted mb-3">
+                            <i class="bi bi-bell-slash"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">لا توجد إشعارات حتى الآن</h5>
+                        <p class="text-muted small mb-4">ستتلقى تنبيهات فورية فور تقديم عروض على مشاريعك، أو اعتماد الدفعات، أو وصول رسائل جديدة.</p>
+                        <a href="/" class="btn btn-primary-custom px-4 py-2">
+                            <i class="bi bi-house me-1"></i> العودة للرئيسية
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card card-custom overflow-hidden">
+                    <div class="list-group list-group-flush" id="notificationsList">
+                        @foreach (var item in Model)
+                        {
+                            <div class="list-group-item p-3 p-md-4 @(!item.IsRead ? "bg-light bg-opacity-75 border-start border-4 border-primary" : "")" id="notification-@item.Id">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="rounded-circle p-2 @(!item.IsRead ? "bg-primary text-white" : "bg-light text-secondary border") fs-5 flex-shrink-0">
+                                        <i class="bi @(item.Title.Contains("عرض") ? "bi-tag" : item.Title.Contains("عقد") ? "bi-file-earmark-check" : item.Title.Contains("دفعة") || item.Title.Contains("مالية") ? "bi-cash-coin" : item.Title.Contains("رسالة") ? "bi-chat-dots" : "bi-bell")"></i>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h6 class="fw-bold text-dark mb-0 @(!item.IsRead ? "text-primary" : "")">
+                                                @item.Title
+                                                @if (!item.IsRead)
+                                                {
+                                                    <span class="badge bg-primary text-white ms-2" style="font-size: 0.65rem;">جديد</span>
+                                                }
+                                            </h6>
+                                            <small class="text-muted text-nowrap ms-2">
+                                                <i class="bi bi-clock me-1"></i> @item.TimeAgo
+                                            </small>
+                                        </div>
+                                        <p class="text-muted mb-2 small">@item.Message</p>
+                                        
+                                        <div class="d-flex align-items-center gap-3">
+                                            @if (!string.IsNullOrEmpty(item.ActionUrl))
+                                            {
+                                                <a href="@item.ActionUrl" class="btn btn-sm btn-outline-custom py-1 px-3 d-inline-flex align-items-center gap-1">
+                                                    <span>عرض التفاصيل</span>
+                                                    <i class="bi bi-arrow-left"></i>
+                                                </a>
+                                            }
+                                            @if (!item.IsRead)
+                                            {
+                                                <button type="button" class="btn btn-link btn-sm text-secondary text-decoration-none p-0" onclick="markSingleRead(@item.Id)">
+                                                    <i class="bi bi-check2 me-1"></i> تعليم كمقروء
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function markSingleRead(id) {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        const form = new FormData();
+        form.append('id', id);
+
+        fetch('/Notifications/MarkAsRead', {
+            method: 'POST',
+            body: form,
+            headers: {
+                'RequestVerificationToken': token || ''
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const el = document.getElementById('notification-' + id);
+                if (el) {
+                    el.classList.remove('bg-light', 'bg-opacity-75', 'border-start', 'border-4', 'border-primary');
+                    const badge = el.querySelector('.badge');
+                    if (badge) badge.remove();
+                    const btn = el.querySelector('button[onclick*="markSingleRead"]');
+                    if (btn) btn.remove();
+                }
+            }
+        })
+        .catch(err => console.error(err));
+    }
+</script>
+}

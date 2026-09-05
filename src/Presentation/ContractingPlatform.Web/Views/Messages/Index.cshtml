@@ -1,0 +1,319 @@
+@model ContractingPlatform.Web.Models.ChatIndexViewModel
+@{
+    ViewData["Title"] = "المحادثات المباشرة والتواصل الميداني";
+    var activeOtherName = Model.ActiveContract != null
+        ? (Model.CurrentUserId == Model.ActiveContract.ClientPhone ? Model.ActiveContract.ContractorCompanyName : Model.ActiveContract.ClientName)
+        : "";
+}
+
+<div class="container-fluid py-3 px-md-4">
+    <div class="card card-custom overflow-hidden shadow-sm border" style="height: calc(100vh - 160px); min-height: 580px;">
+        <div class="row g-0 h-100">
+            <!-- Conversations Sidebar -->
+            <div class="col-lg-4 col-md-5 border-start d-flex flex-column h-100 bg-white">
+                <!-- Sidebar Header -->
+                <div class="p-3 border-bottom bg-light bg-opacity-50">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-chat-dots-fill text-primary"></i>
+                            <span>المحادثات النشطة</span>
+                        </h5>
+                        <span class="badge bg-primary rounded-pill">@Model.Conversations.Count</span>
+                    </div>
+                    <small class="text-muted">قنوات التواصل المباشرة لمشاريعك وعقودك التنفيذية</small>
+                </div>
+
+                <!-- Conversations List -->
+                <div class="overflow-auto flex-grow-1" id="conversationsContainer">
+                    @if (!Model.Conversations.Any())
+                    {
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-chat-square-text fs-1 mb-2 d-block text-secondary opacity-50"></i>
+                            <h6 class="fw-bold">لا توجد محادثات نشطة</h6>
+                            <p class="small mb-0">عند بدء مشروع واعتماد عرض سعر، ستظهر قنوات التواصل المباشرة هنا تلقائياً.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var conv in Model.Conversations)
+                            {
+                                var isActive = Model.ActiveContractId == conv.ProjectContractId;
+                                <a href="@Url.Action("Index", "Messages", new { contractId = conv.ProjectContractId })" 
+                                   class="list-group-item list-group-item-action p-3 border-bottom d-flex align-items-start gap-3 @(isActive ? "bg-light border-start border-4 border-primary" : "")"
+                                   id="conv-link-@conv.ProjectContractId">
+                                    <div class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary fs-4 flex-shrink-0">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 170px;">@conv.OtherUserName</h6>
+                                            <small class="text-muted" style="font-size: 0.75rem;">@conv.LastMessageFormattedTime</small>
+                                        </div>
+                                        <div class="small text-primary fw-medium text-truncate mb-1">
+                                            <i class="bi bi-building me-1"></i> @conv.ProjectTitle
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <p class="text-muted small text-truncate mb-0 conv-last-msg" style="max-width: 190px;">@conv.LastMessage</p>
+                                            @if (conv.UnreadCount > 0)
+                                            {
+                                                <span class="badge bg-danger rounded-pill conv-unread-badge" style="font-size: 0.7rem;">@conv.UnreadCount</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Active Chat Pane -->
+            <div class="col-lg-8 col-md-7 d-flex flex-column h-100 bg-light bg-opacity-25">
+                @if (Model.ActiveContractId.HasValue && Model.ActiveContract != null)
+                {
+                    <!-- Chat Header -->
+                    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle p-2 bg-success bg-opacity-10 text-success fs-4">
+                                <i class="bi bi-chat-quote-fill"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0">
+                                    @(Model.CurrentUserId == Model.ActiveContract.ClientPhone ? Model.ActiveContract.ContractorCompanyName : Model.ActiveContract.ClientName)
+                                    <span class="badge bg-light text-secondary border ms-2 small">عقد #@Model.ActiveContract.Id</span>
+                                </h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-building me-1"></i> @Model.ActiveContract.ProjectTitle
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="@Url.Action("Details", "Contracts", new { id = Model.ActiveContract.Id })" class="btn btn-outline-custom btn-sm py-1 px-3 d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-file-earmark-text"></i>
+                                <span>تفاصيل العقد والدفعات</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages Flow -->
+                    <div class="flex-grow-1 p-3 p-md-4 overflow-auto d-flex flex-column gap-3" id="messagesChatBox">
+                        @if (!Model.ActiveMessages.Any())
+                        {
+                            <div class="text-center my-auto py-5 text-muted" id="noMessagesPlaceholder">
+                                <i class="bi bi-chat-heart fs-1 mb-2 d-block text-secondary opacity-50"></i>
+                                <h6 class="fw-bold">قناة التواصل الميدانية جاهزة</h6>
+                                <p class="small mb-0">ابدأ المحادثة الآن لمناقشة تفاصيل التنفيذ والمواعيد وملاحظات الاستلام.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var msg in Model.ActiveMessages)
+                            {
+                                <div class="d-flex flex-column @(msg.IsMine ? "align-items-start" : "align-items-end")">
+                                    <div class="d-flex align-items-baseline gap-2 mb-1">
+                                        <small class="fw-bold text-dark" style="font-size: 0.8rem;">@msg.SenderName</small>
+                                        <span class="badge bg-light text-muted border" style="font-size: 0.65rem;">@msg.SenderRole</span>
+                                        <small class="text-muted" style="font-size: 0.7rem;">@msg.FormattedTime</small>
+                                    </div>
+                                    <div class="p-3 rounded-3 shadow-sm border @(msg.IsMine ? "bg-primary text-white" : "bg-white text-dark")" style="max-width: 80%; word-break: break-word;">
+                                        @if (!string.IsNullOrEmpty(msg.MessageText))
+                                        {
+                                            <p class="mb-1" style="font-size: 0.95rem; white-space: pre-wrap;">@msg.MessageText</p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(msg.AttachmentUrl))
+                                        {
+                                            <div class="mt-2 pt-2 border-top border-white border-opacity-25">
+                                                <a href="@msg.AttachmentUrl" target="_blank" class="btn btn-sm @(msg.IsMine ? "btn-light text-primary" : "btn-outline-custom") d-inline-flex align-items-center gap-1">
+                                                    <i class="bi bi-paperclip"></i>
+                                                    <span>معاينة المرفق الفني</span>
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <!-- Typing Indicator -->
+                    <div id="typingIndicator" class="px-4 py-1 text-muted small d-none">
+                        <span class="spinner-grow spinner-grow-sm text-primary me-1" role="status"></span>
+                        <span id="typingText">جاري الكتابة...</span>
+                    </div>
+
+                    <!-- Chat Input Footer -->
+                    <div class="p-3 bg-white border-top">
+                        <form id="chatForm" class="d-flex align-items-center gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="ProjectContractId" value="@Model.ActiveContract.Id" />
+                            <input type="hidden" name="ReceiverUserId" value="@(Model.ActiveMessages.FirstOrDefault(m => !m.IsMine)?.SenderUserId ?? "")" />
+                            
+                            <!-- File Attachment Button -->
+                            <label class="btn btn-outline-custom btn-sm mb-0 d-flex align-items-center justify-content-center" style="height: 42px; width: 42px;" title="إرفاق ملف أو صورة">
+                                <i class="bi bi-paperclip fs-5"></i>
+                                <input type="file" id="attachmentInput" name="attachmentFile" class="d-none" accept=".pdf,.dwg,.jpg,.jpeg,.png,.webp,.doc,.docx" />
+                            </label>
+
+                            <!-- Text Input -->
+                            <div class="flex-grow-1 position-relative">
+                                <input type="text" id="messageTextInput" name="MessageText" class="form-control rounded-pill px-3" placeholder="اكتب رسالتك الميدانية هنا..." autocomplete="off" style="height: 42px;" />
+                                <span id="attachedFileName" class="badge bg-secondary position-absolute end-0 top-50 translate-middle-y me-3 d-none text-truncate" style="max-width: 140px;"></span>
+                            </div>
+
+                            <!-- Send Button -->
+                            <button type="submit" id="sendBtn" class="btn btn-primary-custom rounded-pill px-4 d-flex align-items-center gap-2" style="height: 42px;">
+                                <span>إرسال</span>
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center my-auto p-5 text-muted">
+                        <i class="bi bi-chat-left-dots fs-1 mb-3 d-block text-secondary opacity-50"></i>
+                        <h5 class="fw-bold text-dark">اختر محادثة من القائمة لبدء التواصل المباشر</h5>
+                        <p class="small text-muted mb-0">يمكنك هنا مناقشة تفاصيل المشاريع مع العميل أو المقاول لحظة بلحظة.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const activeContractId = @(Model.ActiveContractId.HasValue ? Model.ActiveContractId.Value : 0);
+    const currentUserId = "@Model.CurrentUserId";
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const chatBox = document.getElementById("messagesChatBox");
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Setup file selection display
+        const fileInput = document.getElementById("attachmentInput");
+        const fileBadge = document.getElementById("attachedFileName");
+        if (fileInput && fileBadge) {
+            fileInput.addEventListener("change", function () {
+                if (this.files && this.files.length > 0) {
+                    fileBadge.textContent = this.files[0].name;
+                    fileBadge.classList.remove("d-none");
+                } else {
+                    fileBadge.textContent = "";
+                    fileBadge.classList.add("d-none");
+                }
+            });
+        }
+
+        // Join Contract SignalR room
+        if (activeContractId > 0 && typeof connection !== "undefined") {
+            if (connection.state === signalR.HubConnectionState.Connected) {
+                connection.invoke("JoinContractRoom", activeContractId).catch(console.error);
+            } else {
+                connection.onreconnected(() => {
+                    connection.invoke("JoinContractRoom", activeContractId).catch(console.error);
+                });
+            }
+
+            // Real-time Chat message listener
+            connection.on("ReceiveChatMessage", function (msg) {
+                if (msg.projectContractId === activeContractId) {
+                    appendMessage(msg);
+                } else if (msg.projectContractId) {
+                    // Update sidebar unread badge for another contract
+                    const convBadge = document.querySelector("#conv-link-" + msg.projectContractId + " .conv-unread-badge");
+                    if (convBadge) {
+                        let count = parseInt(convBadge.textContent) || 0;
+                        convBadge.textContent = count + 1;
+                    }
+                }
+            });
+        }
+
+        // Handle Chat Form Submit
+        const chatForm = document.getElementById("chatForm");
+        if (chatForm) {
+            chatForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const textInput = document.getElementById("messageTextInput");
+                const text = textInput.value.trim();
+                const file = fileInput.files[0];
+
+                if (!text && !file) return;
+
+                const formData = new FormData(chatForm);
+                const sendBtn = document.getElementById("sendBtn");
+                sendBtn.disabled = true;
+
+                fetch('/Messages/SendMessage', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    sendBtn.disabled = false;
+                    if (data.success) {
+                        textInput.value = "";
+                        fileInput.value = "";
+                        if (fileBadge) fileBadge.classList.add("d-none");
+                    } else {
+                        alert(data.message || "تعذر إرسال الرسالة");
+                    }
+                })
+                .catch(err => {
+                    sendBtn.disabled = false;
+                    console.error("Send message failed", err);
+                });
+            });
+        }
+    });
+
+    function appendMessage(msg) {
+        const chatBox = document.getElementById("messagesChatBox");
+        if (!chatBox) return;
+
+        const placeholder = document.getElementById("noMessagesPlaceholder");
+        if (placeholder) placeholder.remove();
+
+        const isMine = msg.senderUserId === currentUserId;
+        const msgWrapper = document.createElement("div");
+        msgWrapper.className = "d-flex flex-column " + (isMine ? "align-items-start" : "align-items-end");
+
+        let attachmentHtml = "";
+        if (msg.attachmentUrl) {
+            attachmentHtml = `
+                <div class="mt-2 pt-2 border-top border-white border-opacity-25">
+                    <a href="${msg.attachmentUrl}" target="_blank" class="btn btn-sm ${isMine ? 'btn-light text-primary' : 'btn-outline-custom'} d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-paperclip"></i>
+                        <span>معاينة المرفق الفني</span>
+                    </a>
+                </div>`;
+        }
+
+        msgWrapper.innerHTML = `
+            <div class="d-flex align-items-baseline gap-2 mb-1">
+                <small class="fw-bold text-dark" style="font-size: 0.8rem;">${msg.senderName}</small>
+                <span class="badge bg-light text-muted border" style="font-size: 0.65rem;">${msg.senderRole}</span>
+                <small class="text-muted" style="font-size: 0.7rem;">${msg.formattedTime}</small>
+            </div>
+            <div class="p-3 rounded-3 shadow-sm border ${isMine ? 'bg-primary text-white' : 'bg-white text-dark'}" style="max-width: 80%; word-break: break-word;">
+                ${msg.messageText ? `<p class="mb-1" style="font-size: 0.95rem; white-space: pre-wrap;">${escapeHtml(msg.messageText)}</p>` : ''}
+                ${attachmentHtml}
+            </div>
+        `;
+
+        chatBox.appendChild(msgWrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function escapeHtml(string) {
+        const div = document.createElement('div');
+        div.innerText = string;
+        return div.innerHTML;
+    }
+</script>
+}

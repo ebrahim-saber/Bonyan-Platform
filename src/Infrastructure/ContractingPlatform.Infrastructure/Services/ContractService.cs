@@ -13,11 +13,16 @@ public class ContractService : IContractService
 {
     private readonly ApplicationDbContext _context;
     private readonly ISecurityAuditService _securityAuditService;
+    private readonly INotificationService _notificationService;
 
-    public ContractService(ApplicationDbContext context, ISecurityAuditService securityAuditService)
+    public ContractService(
+        ApplicationDbContext context, 
+        ISecurityAuditService securityAuditService,
+        INotificationService notificationService)
     {
         _context = context;
         _securityAuditService = securityAuditService;
+        _notificationService = notificationService;
     }
 
     public async Task<ApiResponse<ContractDetailsDto>> GetContractDetailsAsync(int contractId, string? requestingUserId = null, bool isAdmin = false)
@@ -171,6 +176,16 @@ public class ContractService : IContractService
 
         await _context.SaveChangesAsync();
 
+        var clientProfile = await _context.ClientProfiles.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == milestone.Contract.ClientProfileId);
+        if (clientProfile != null)
+        {
+            await _notificationService.SendNotificationAsync(
+                clientProfile.UserId,
+                "إثبات إنجاز مرحلة بانتظار اعتمادك",
+                $"أنهى المقاول مرحلة '{milestone.Title}' في العقد #{milestone.ProjectContractId} ورفع تقرير الإنجاز للمعاينة.",
+                $"/Contracts/Details/{milestone.ProjectContractId}");
+        }
+
         return ApiResponse<bool>.Ok(true, "تم تسليم إنجاز المرحلة للعميل بنجاح للمراجعة والاعتماد");
     }
 
@@ -262,6 +277,16 @@ public class ContractService : IContractService
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            var contractorProfile = await _context.ContractorProfiles.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == milestone.Contract.ContractorProfileId);
+            if (contractorProfile != null)
+            {
+                await _notificationService.SendNotificationAsync(
+                    contractorProfile.UserId,
+                    "تم اعتماد المرحلة وإطلاق الدفعة المالية",
+                    $"وافق العميل على إنجاز مرحلة '{milestone.Title}' في العقد #{milestone.ProjectContractId} وتم تحرير دفعة مالية بقيمة {milestone.Amount:N0} ر.س إلى رصيدك.",
+                    $"/Contracts/Details/{milestone.ProjectContractId}");
+            }
 
             await _securityAuditService.LogSecurityEventAsync(
                 "ESCROW_PAYMENT_RELEASED",
