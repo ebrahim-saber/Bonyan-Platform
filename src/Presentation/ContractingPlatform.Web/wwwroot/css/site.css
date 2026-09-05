@@ -197,10 +197,10 @@ body {
   position: relative;
   background: radial-gradient(circle at 80% 20%, #1e293b 0%, #0b132b 50%, #070d1e 100%);
   color: #ffffff;
-  padding: 5rem 0 4rem 0;
-  border-radius: 0 0 32px 32px;
+  padding: 2.5rem 0 2rem 0;
+  border-radius: 0 0 24px 24px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(11, 19, 43, 0.15);
+  box-shadow: 0 12px 30px rgba(11, 19, 43, 0.12);
 }
 
 .hero-mesh-overlay {
@@ -210,105 +210,105 @@ body {
   right: 0;
   bottom: 0;
   background-image: 
-    radial-gradient(circle at 15% 25%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.12) 0%, transparent 45%);
+    radial-gradient(circle at 15% 25%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.10) 0%, transparent 45%);
   pointer-events: none;
 }
 
 .hero-badge-pill {
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: #fef3c7;
-  padding: 0.5rem 1.2rem;
+  padding: 0.3rem 0.85rem;
   border-radius: 50px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 1.5rem;
+  gap: 8px;
+  margin-bottom: 0.85rem;
 }
 
-/* Hero Showcase Card - Stable, No Hover Tilts or Jumps */
+/* Hero Showcase Card - Compact & Balanced */
 .hero-showcase-card {
   position: relative;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: #0f172a;
 }
 
 .hero-showcase-img {
   width: 100%;
-  height: 380px;
+  height: 235px;
   object-fit: cover;
-  filter: brightness(0.85);
+  filter: brightness(0.88);
   display: block;
 }
 
-/* Floating Badges over Hero Mockup - Fixed, Stable */
+/* Floating Badges over Hero Mockup - Compact & Stable */
 .floating-badge {
   position: absolute;
-  background: rgba(11, 19, 43, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(11, 19, 43, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
-  padding: 0.85rem 1.15rem;
+  border-radius: 10px;
+  padding: 0.55rem 0.85rem;
   color: #ffffff;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
   z-index: 5;
 }
 
 .floating-badge.top-badge {
-  top: 20px;
-  right: 20px;
+  top: 12px;
+  right: 12px;
 }
 
 .floating-badge.bottom-badge {
-  bottom: 20px;
-  left: 20px;
+  bottom: 12px;
+  left: 12px;
 }
 
-/* Search Bar in Hero */
+/* Search Bar in Hero - Sleek & Compact */
 .hero-search-card {
   background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  border-radius: 16px;
-  padding: 0.75rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px);
+  border-radius: 12px;
+  padding: 0.45rem 0.6rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Trust Stats Strip */
+/* Trust Stats Strip - Compact */
 .trust-strip {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 1.8rem 2.2rem;
-  margin-top: -3rem;
+  border-radius: 16px;
+  padding: 1.1rem 1.8rem;
+  margin-top: -1.6rem;
   position: relative;
   z-index: 10;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
   border: 1px solid var(--border-card);
 }
 
 .trust-stat-item {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .trust-stat-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.55rem;
+  font-size: 1.3rem;
   flex-shrink: 0;
 }
 
