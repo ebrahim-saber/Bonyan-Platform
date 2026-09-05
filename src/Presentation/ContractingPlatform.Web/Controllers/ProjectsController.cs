@@ -36,7 +36,7 @@ public class ProjectsController : Controller
             contractorId = await _currentUserService.GetContractorProfileIdAsync();
         }
 
-        var result = await _projectService.GetProjectDetailsAsync(id, contractorId);
+        var result = await _projectService.GetProjectDetailsAsync(id, _currentUserService.UserId, contractorId, User.IsInRole(nameof(UserType.Admin)));
         if (!result.Success || result.Data == null)
         {
             TempData["ErrorMessage"] = result.Message;

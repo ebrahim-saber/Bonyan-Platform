@@ -21,7 +21,7 @@ public class ContractsController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var result = await _contractService.GetContractDetailsAsync(id);
+        var result = await _contractService.GetContractDetailsAsync(id, _currentUserService.UserId, User.IsInRole(nameof(UserType.Admin)));
         if (!result.Success || result.Data == null)
         {
             TempData["ErrorMessage"] = result.Message;

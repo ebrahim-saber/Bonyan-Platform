@@ -21,7 +21,7 @@ public interface ICurrentUserService
 public interface IProjectService
 {
     Task<ApiResponse<int>> CreateProjectAsync(CreateProjectDto dto, int clientProfileId);
-    Task<ApiResponse<ProjectDetailsDto>> GetProjectDetailsAsync(int projectId, int? currentContractorProfileId = null);
+    Task<ApiResponse<ProjectDetailsDto>> GetProjectDetailsAsync(int projectId, string? currentUserId = null, int? currentContractorProfileId = null, bool isAdmin = false);
     Task<List<ProjectCardDto>> GetOpenProjectsAsync(int? categoryId = null, string? city = null);
     Task<List<ProjectCardDto>> GetClientProjectsAsync(int clientProfileId);
     Task<List<Category>> GetActiveCategoriesAsync();
@@ -37,7 +37,7 @@ public interface IBidService
 
 public interface IContractService
 {
-    Task<ApiResponse<ContractDetailsDto>> GetContractDetailsAsync(int contractId);
+    Task<ApiResponse<ContractDetailsDto>> GetContractDetailsAsync(int contractId, string? requestingUserId = null, bool isAdmin = false);
     Task<List<ContractDetailsDto>> GetUserContractsAsync(string userId, UserType userType);
     Task<ApiResponse<bool>> SubmitMilestoneProofAsync(SubmitMilestoneProofDto dto, int contractorProfileId);
     Task<ApiResponse<bool>> ApproveMilestoneAndReleasePaymentAsync(int milestoneId, int clientProfileId, string? notes);
@@ -54,4 +54,9 @@ public interface IAdminService
     Task<List<ContractorProfile>> GetPendingContractorsAsync();
     Task<ApiResponse<bool>> UpdateContractorStatusAsync(int contractorProfileId, VerificationStatus status, string? notes);
     Task<object> GetPlatformStatisticsAsync();
+}
+
+public interface ISecurityAuditService
+{
+    Task LogSecurityEventAsync(string eventType, string description, string? userId = null, string? ipAddress = null, bool isSuspicious = false);
 }

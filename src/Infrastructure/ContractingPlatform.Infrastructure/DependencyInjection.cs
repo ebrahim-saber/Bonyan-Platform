@@ -19,14 +19,21 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString, b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
+        // Security Hardened Identity Configuration
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
+            // Password Policies
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = false;
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequireUppercase = false;
             options.Password.RequiredLength = 6;
             options.User.RequireUniqueEmail = true;
+
+            // Brute Force & Credential Stuffing Lockout Defense
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
@@ -34,7 +41,8 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddSignalR();
 
-        // Register Application Services
+        // Register Application & Security Services
+        services.AddScoped<ISecurityAuditService, SecurityAuditService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IProjectService, ProjectService>();
         services.AddScoped<IBidService, BidService>();

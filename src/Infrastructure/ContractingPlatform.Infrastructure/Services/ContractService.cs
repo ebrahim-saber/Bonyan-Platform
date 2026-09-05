@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using ContractingPlatform.Application.DTOs.Common;
 using ContractingPlatform.Application.DTOs.Contracts;
@@ -11,13 +12,15 @@ namespace ContractingPlatform.Infrastructure.Services;
 public class ContractService : IContractService
 {
     private readonly ApplicationDbContext _context;
+    private readonly ISecurityAuditService _securityAuditService;
 
-    public ContractService(ApplicationDbContext context)
+    public ContractService(ApplicationDbContext context, ISecurityAuditService securityAuditService)
     {
         _context = context;
+        _securityAuditService = securityAuditService;
     }
 
-    public async Task<ApiResponse<ContractDetailsDto>> GetContractDetailsAsync(int contractId)
+    public async Task<ApiResponse<ContractDetailsDto>> GetContractDetailsAsync(int contractId, string? requestingUserId = null, bool isAdmin = false)
     {
         var contract = await _context.ProjectContracts
             .Include(c => c.ProjectRequest).ThenInclude(p => p.Category)
@@ -30,6 +33,24 @@ public class ContractService : IContractService
         if (contract == null)
         {
             return ApiResponse<ContractDetailsDto>.Fail("العقد المطلوب غير موجود");
+        }
+
+        // BOLA / IDOR Defense Check: Only the Contract's Client, Contractor, or Platform Admin may view
+        if (!isAdmin && !string.IsNullOrEmpty(requestingUserId))
+        {
+            bool isClient = contract.Client?.UserId == requestingUserId;
+            bool isContractor = contract.Contractor?.UserId == requestingUserId;
+
+            if (!isClient && !isContractor)
+            {
+                await _securityAuditService.LogSecurityEventAsync(
+                    "UNAUTHORIZED_CONTRACT_ACCESS_BLOCKED",
+                    $"User '{requestingUserId}' attempted unauthorized view of Contract #{contractId}",
+                    userId: requestingUserId,
+                    isSuspicious: true);
+
+                return ApiResponse<ContractDetailsDto>.Fail("غير مصرح لك بالاطلاع على تفاصيل هذا العقد");
+            }
         }
 
         var dto = new ContractDetailsDto
@@ -131,7 +152,17 @@ public class ContractService : IContractService
 
         if (milestone.Contract.ContractorProfileId != contractorProfileId)
         {
+            await _securityAuditService.LogSecurityEventAsync(
+                "UNAUTHORIZED_MILESTONE_SUBMIT_ATTEMPT",
+                $"ContractorProfile #{contractorProfileId} tried submitting milestone #{dto.MilestoneId} belonging to another contractor",
+                isSuspicious: true);
+
             return ApiResponse<bool>.Fail("غير مصرح لك بتقديم إنجاز لهذه المرحلة");
+        }
+
+        if (milestone.Status == MilestoneStatus.Paid)
+        {
+            return ApiResponse<bool>.Fail("هذه المرحلة مدفوعة ومكتملة بالفعل");
         }
 
         milestone.Status = MilestoneStatus.SubmittedForReview;
@@ -145,68 +176,106 @@ public class ContractService : IContractService
 
     public async Task<ApiResponse<bool>> ApproveMilestoneAndReleasePaymentAsync(int milestoneId, int clientProfileId, string? notes)
     {
-        var milestone = await _context.ProjectMilestones
-            .Include(m => m.Contract).ThenInclude(c => c.Milestones)
-            .Include(m => m.Contract).ThenInclude(c => c.ProjectRequest)
-            .FirstOrDefaultAsync(m => m.Id == milestoneId);
-
-        if (milestone == null)
+        // Pessimistic / Serializable Lock to prevent double-spending race conditions
+        using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        try
         {
-            return ApiResponse<bool>.Fail("المرحلة غير موجودة");
-        }
+            var milestone = await _context.ProjectMilestones
+                .Include(m => m.Contract).ThenInclude(c => c.Milestones)
+                .Include(m => m.Contract).ThenInclude(c => c.ProjectRequest)
+                .Include(m => m.Contract).ThenInclude(c => c.Client)
+                .FirstOrDefaultAsync(m => m.Id == milestoneId);
 
-        if (milestone.Contract.ClientProfileId != clientProfileId)
-        {
-            return ApiResponse<bool>.Fail("غير مصرح لك باعتماد هذه المرحلة");
-        }
-
-        milestone.Status = MilestoneStatus.Paid;
-        milestone.CompletedAt = DateTime.UtcNow;
-        milestone.ClientApprovalNotes = notes;
-
-        // Record Escrow Release Transaction
-        var transaction = new PaymentTransaction
-        {
-            ProjectContractId = milestone.ProjectContractId,
-            MilestoneId = milestone.Id,
-            ClientProfileId = clientProfileId,
-            ContractorProfileId = milestone.Contract.ContractorProfileId,
-            Amount = milestone.Amount,
-            PlatformFee = Math.Round(milestone.Amount * (milestone.Contract.PlatformCommissionPercentage / 100m), 2),
-            NetAmount = milestone.Amount - Math.Round(milestone.Amount * (milestone.Contract.PlatformCommissionPercentage / 100m), 2),
-            PaymentStatus = PaymentStatus.ReleasedToContractor,
-            PaymentMethod = PaymentMethod.Mada,
-            EscrowReleasedAt = DateTime.UtcNow
-        };
-
-        await _context.PaymentTransactions.AddAsync(transaction);
-
-        // Check if all milestones are paid -> mark contract & project as Completed!
-        bool allCompleted = milestone.Contract.Milestones.All(m => m.Id == milestone.Id || m.Status == MilestoneStatus.Paid);
-        if (allCompleted)
-        {
-            milestone.Contract.Status = ProjectStatus.Completed;
-            milestone.Contract.ActualEndDate = DateTime.UtcNow;
-            milestone.Contract.ProjectRequest.Status = ProjectStatus.Completed;
-        }
-        else
-        {
-            // Activate the next pending milestone
-            var nextMilestone = milestone.Contract.Milestones
-                .Where(m => m.OrderIndex > milestone.OrderIndex && m.Status == MilestoneStatus.Pending)
-                .OrderBy(m => m.OrderIndex)
-                .FirstOrDefault();
-
-            if (nextMilestone != null)
+            if (milestone == null)
             {
-                nextMilestone.Status = MilestoneStatus.InProgress;
+                return ApiResponse<bool>.Fail("المرحلة غير موجودة");
             }
+
+            if (milestone.Contract.ClientProfileId != clientProfileId)
+            {
+                await _securityAuditService.LogSecurityEventAsync(
+                    "UNAUTHORIZED_MILESTONE_PAYMENT_RELEASE_ATTEMPT",
+                    $"ClientProfile #{clientProfileId} attempted to release payment for milestone #{milestoneId} of another client",
+                    isSuspicious: true);
+
+                return ApiResponse<bool>.Fail("غير مصرح لك باعتماد هذه المرحلة");
+            }
+
+            // Anti-Double-Spend Defense Check
+            if (milestone.Status == MilestoneStatus.Paid)
+            {
+                return ApiResponse<bool>.Fail("تنبيه أمني: تم سداد وإفراج دفعة هذه المرحلة مسبقاً، لا يمكن تكرار الصرف");
+            }
+
+            if (milestone.Status != MilestoneStatus.SubmittedForReview)
+            {
+                return ApiResponse<bool>.Fail("لا يمكن الإفراج عن الدفعة؛ المرحلة لم تُسلّم للمعاينة والاعتماد بعد من المقاول");
+            }
+
+            milestone.Status = MilestoneStatus.Paid;
+            milestone.CompletedAt = DateTime.UtcNow;
+            milestone.ClientApprovalNotes = notes;
+
+            // Record Escrow Release Transaction
+            var commissionPercentage = milestone.Contract.PlatformCommissionPercentage;
+            var platformFee = Math.Round(milestone.Amount * (commissionPercentage / 100m), 2);
+            var netAmount = milestone.Amount - platformFee;
+
+            var paymentRecord = new PaymentTransaction
+            {
+                ProjectContractId = milestone.ProjectContractId,
+                MilestoneId = milestone.Id,
+                ClientProfileId = clientProfileId,
+                ContractorProfileId = milestone.Contract.ContractorProfileId,
+                Amount = milestone.Amount,
+                PlatformFee = platformFee,
+                NetAmount = netAmount,
+                PaymentStatus = PaymentStatus.ReleasedToContractor,
+                PaymentMethod = PaymentMethod.Mada,
+                TransactionReference = "ESCROW-REL-" + Guid.NewGuid().ToString("N").ToUpper(),
+                EscrowReleasedAt = DateTime.UtcNow
+            };
+
+            await _context.PaymentTransactions.AddAsync(paymentRecord);
+
+            // Check if all milestones are paid -> mark contract & project as Completed!
+            bool allCompleted = milestone.Contract.Milestones.All(m => m.Id == milestone.Id || m.Status == MilestoneStatus.Paid);
+            if (allCompleted)
+            {
+                milestone.Contract.Status = ProjectStatus.Completed;
+                milestone.Contract.ActualEndDate = DateTime.UtcNow;
+                milestone.Contract.ProjectRequest.Status = ProjectStatus.Completed;
+            }
+            else
+            {
+                // Activate the next pending milestone
+                var nextMilestone = milestone.Contract.Milestones
+                    .Where(m => m.OrderIndex > milestone.OrderIndex && m.Status == MilestoneStatus.Pending)
+                    .OrderBy(m => m.OrderIndex)
+                    .FirstOrDefault();
+
+                if (nextMilestone != null)
+                {
+                    nextMilestone.Status = MilestoneStatus.InProgress;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            await _securityAuditService.LogSecurityEventAsync(
+                "ESCROW_PAYMENT_RELEASED",
+                $"Successfully released Escrow payment {milestone.Amount} SAR for Milestone #{milestone.Id}, Contract #{milestone.ProjectContractId}",
+                userId: milestone.Contract.Client?.UserId);
+
+            return ApiResponse<bool>.Ok(true, allCompleted 
+                ? "تم اعتماد آخر مرحلة واكتمال المشروع بنجاح! يمكنك الآن تقييم المقاول" 
+                : "تم اعتماد إنجاز المرحلة والإفراج عن الدفعة للمقاول بنجاح من حساب الضمان");
         }
-
-        await _context.SaveChangesAsync();
-
-        return ApiResponse<bool>.Ok(true, allCompleted 
-            ? "تم اعتماد آخر مرحلة واكتمال المشروع بنجاح! يمكنك الآن تقييم المقاول" 
-            : "تم اعتماد إنجاز المرحلة والإفراج عن الدفعة للمقاول بنجاح");
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return ApiResponse<bool>.Fail($"حدث خطأ أثناء معالجة الإفراج المالي: {ex.Message}");
+        }
     }
 }

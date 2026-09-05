@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ContractingPlatform.Application.DTOs.Auth;
 using ContractingPlatform.Application.Interfaces;
 using ContractingPlatform.Domain.Entities;
@@ -9,23 +10,27 @@ using ContractingPlatform.Infrastructure.Data;
 
 namespace ContractingPlatform.Web.Controllers;
 
+[EnableRateLimiting("auth-limit")]
 public class AccountController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ApplicationDbContext _context;
     private readonly IProjectService _projectService;
+    private readonly ISecurityAuditService _securityAuditService;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         ApplicationDbContext context,
-        IProjectService projectService)
+        IProjectService projectService,
+        ISecurityAuditService securityAuditService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _context = context;
         _projectService = projectService;
+        _securityAuditService = securityAuditService;
     }
 
     [HttpGet]
@@ -48,13 +53,16 @@ public class AccountController : Controller
         var user = await _userManager.FindByEmailAsync(dto.Email.Trim());
         if (user == null || !user.IsActive)
         {
+            await _securityAuditService.LogSecurityEventAsync("LOGIN_ATTEMPT_UNKNOWN_USER", $"Login attempt for non-existent or inactive user: {dto.Email}", isSuspicious: true);
             ModelState.AddModelError("", "البريد الإلكتروني أو كلمة المرور غير صحيحة، أو تم تعطيل الحساب");
             return View(dto);
         }
 
-        var result = await _signInManager.PasswordSignInAsync(user, dto.Password, dto.RememberMe, lockoutOnFailure: false);
+        // Enforce Account Lockout Defense against Brute-Force & Credential Stuffing
+        var result = await _signInManager.PasswordSignInAsync(user, dto.Password, dto.RememberMe, lockoutOnFailure: true);
         if (result.Succeeded)
         {
+            await _securityAuditService.LogSecurityEventAsync("LOGIN_SUCCESS", $"User {user.Email} logged in successfully", userId: user.Id);
             TempData["SuccessMessage"] = $"مرحباً بك مجدداً، {user.FullName}!";
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
@@ -69,6 +77,14 @@ public class AccountController : Controller
             return RedirectToAction("Index", "Home");
         }
 
+        if (result.IsLockedOut)
+        {
+            await _securityAuditService.LogSecurityEventAsync("ACCOUNT_LOCKED_OUT", $"Account {user.Email} was locked out due to multiple failed login attempts", userId: user.Id, isSuspicious: true);
+            ModelState.AddModelError("", "تم قفل الحساب مؤقتاً لمدة 15 دقيقة لتكرار المحاولات الخاطئة حرصاً على أمانك.");
+            return View(dto);
+        }
+
+        await _securityAuditService.LogSecurityEventAsync("LOGIN_FAILED", $"Failed login attempt for {dto.Email}", userId: user.Id, isSuspicious: true);
         ModelState.AddModelError("", "البريد الإلكتروني أو كلمة المرور غير صحيحة");
         return View(dto);
     }

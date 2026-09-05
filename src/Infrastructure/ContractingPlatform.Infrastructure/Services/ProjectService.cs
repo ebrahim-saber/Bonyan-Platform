@@ -48,7 +48,11 @@ public class ProjectService : IProjectService
         return ApiResponse<int>.Ok(project.Id, "تم إنشاء ونشر طلب المشروع بنجاح وهو الآن متاح لاستقبال عروض المقاولين");
     }
 
-    public async Task<ApiResponse<ProjectDetailsDto>> GetProjectDetailsAsync(int projectId, int? currentContractorProfileId = null)
+    public async Task<ApiResponse<ProjectDetailsDto>> GetProjectDetailsAsync(
+        int projectId,
+        string? currentUserId = null,
+        int? currentContractorProfileId = null,
+        bool isAdmin = false)
     {
         var project = await _context.ProjectRequests
             .Include(p => p.Category)
@@ -65,6 +69,61 @@ public class ProjectService : IProjectService
         // Increment Views
         project.ViewsCount++;
         await _context.SaveChangesAsync();
+
+        // Commercial Privacy & Sealed Bids Protection:
+        // 1. Project Owner & Admin: See all bids with full financial breakdowns.
+        // 2. Competing Contractors: Only see their OWN bid in full. Other bids are masked to prevent price tampering & bid sniping.
+        // 3. Guests/Unauthenticated: Bids are hidden; only total bids count is visible.
+        bool isOwner = !string.IsNullOrEmpty(currentUserId) && project.Client?.User?.Id == currentUserId;
+        bool canViewAllBids = isOwner || isAdmin;
+
+        List<BidListItemDto> bidsList;
+
+        if (canViewAllBids)
+        {
+            bidsList = project.Bids.OrderByDescending(b => b.SubmittedAt).Select(b => new BidListItemDto
+            {
+                Id = b.Id,
+                ContractorProfileId = b.ContractorProfileId,
+                ContractorCompanyName = b.Contractor.CompanyName,
+                ContractorRating = b.Contractor.Rating,
+                ContractorTotalReviews = b.Contractor.TotalReviews,
+                ProposedPrice = b.ProposedPrice,
+                DurationDays = b.DurationDays,
+                Notes = b.Notes,
+                MaterialCost = b.MaterialCost,
+                LaborCost = b.LaborCost,
+                Status = b.Status,
+                SubmittedAt = b.SubmittedAt
+            }).ToList();
+        }
+        else if (currentContractorProfileId.HasValue)
+        {
+            bidsList = project.Bids.OrderByDescending(b => b.SubmittedAt).Select(b =>
+            {
+                bool isMyBid = b.ContractorProfileId == currentContractorProfileId.Value;
+                return new BidListItemDto
+                {
+                    Id = isMyBid ? b.Id : 0,
+                    ContractorProfileId = isMyBid ? b.ContractorProfileId : 0,
+                    ContractorCompanyName = isMyBid ? b.Contractor.CompanyName : "عرض منافس معتمد (عرض سري)",
+                    ContractorRating = isMyBid ? b.Contractor.Rating : 5.0m,
+                    ContractorTotalReviews = isMyBid ? b.Contractor.TotalReviews : 0,
+                    ProposedPrice = isMyBid ? b.ProposedPrice : 0,
+                    DurationDays = isMyBid ? b.DurationDays : 0,
+                    Notes = isMyBid ? b.Notes : "تفاصيل الأسعار والعرض المالي سرية ومتاحة لصاحب المشروع فقط لضمان النزاهة التنافسية.",
+                    MaterialCost = isMyBid ? b.MaterialCost : null,
+                    LaborCost = isMyBid ? b.LaborCost : null,
+                    Status = b.Status,
+                    SubmittedAt = b.SubmittedAt
+                };
+            }).ToList();
+        }
+        else
+        {
+            // Anonymous visitors only see count of bids, not private pricing
+            bidsList = new List<BidListItemDto>();
+        }
 
         var details = new ProjectDetailsDto
         {
@@ -86,21 +145,7 @@ public class ProjectService : IProjectService
             ClientName = project.Client.User.FullName,
             AttachmentUrls = project.Attachments.Select(a => a.FilePath).ToList(),
             HasUserBid = currentContractorProfileId.HasValue && project.Bids.Any(b => b.ContractorProfileId == currentContractorProfileId.Value),
-            Bids = project.Bids.OrderByDescending(b => b.SubmittedAt).Select(b => new BidListItemDto
-            {
-                Id = b.Id,
-                ContractorProfileId = b.ContractorProfileId,
-                ContractorCompanyName = b.Contractor.CompanyName,
-                ContractorRating = b.Contractor.Rating,
-                ContractorTotalReviews = b.Contractor.TotalReviews,
-                ProposedPrice = b.ProposedPrice,
-                DurationDays = b.DurationDays,
-                Notes = b.Notes,
-                MaterialCost = b.MaterialCost,
-                LaborCost = b.LaborCost,
-                Status = b.Status,
-                SubmittedAt = b.SubmittedAt
-            }).ToList()
+            Bids = bidsList
         };
 
         return ApiResponse<ProjectDetailsDto>.Ok(details);

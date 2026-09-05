@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ContractingPlatform.Application.DTOs.Common;
 using ContractingPlatform.Application.DTOs.Projects;
 using ContractingPlatform.Application.Interfaces;
@@ -6,6 +7,7 @@ using ContractingPlatform.Application.Interfaces;
 namespace ContractingPlatform.Web.Controllers.Api;
 
 [ApiController]
+[EnableRateLimiting("general-limit")]
 [Route("api/v1/projects")]
 public class ProjectsApiController : ControllerBase
 {
@@ -32,7 +34,7 @@ public class ProjectsApiController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ApiResponse<ProjectDetailsDto>>> GetProjectDetails(int id)
     {
-        var result = await _projectService.GetProjectDetailsAsync(id);
+        var result = await _projectService.GetProjectDetailsAsync(id, null, null, false);
         if (!result.Success) return NotFound(result);
         return Ok(result);
     }

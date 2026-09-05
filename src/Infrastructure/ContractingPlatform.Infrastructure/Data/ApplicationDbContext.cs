@@ -26,6 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ProjectReview> ProjectReviews => Set<ProjectReview>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<SecurityLog> SecurityLogs => Set<SecurityLog>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

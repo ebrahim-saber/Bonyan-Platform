@@ -26,7 +26,7 @@ public class BidsController : Controller
     [Authorize(Roles = nameof(UserType.Contractor))]
     public async Task<IActionResult> Submit(int projectId)
     {
-        var projectRes = await _projectService.GetProjectDetailsAsync(projectId);
+        var projectRes = await _projectService.GetProjectDetailsAsync(projectId, _currentUserService.UserId, null, User.IsInRole(nameof(UserType.Admin)));
         if (!projectRes.Success || projectRes.Data == null)
         {
             TempData["ErrorMessage"] = "المشروع غير موجود";
@@ -56,7 +56,7 @@ public class BidsController : Controller
             return RedirectToAction("Details", "Projects", new { id = dto.ProjectRequestId });
         }
 
-        var projectRes = await _projectService.GetProjectDetailsAsync(dto.ProjectRequestId);
+        var projectRes = await _projectService.GetProjectDetailsAsync(dto.ProjectRequestId, _currentUserService.UserId, null, User.IsInRole(nameof(UserType.Admin)));
         ViewBag.Project = projectRes.Data;
         ModelState.AddModelError("", result.Message);
         return View(dto);
